@@ -11,25 +11,25 @@
 \echo 'Loading PRISM...'
 
 \echo '1/7: Foundation...'
-\i 00_foundation.sql
+\i schema/00_foundation.sql
 
 \echo '2/7: Geometric Analysis...'
-\i 01_geometric_analysis.sql
+\i schema/01_geometric_analysis.sql
 
 \echo '3/7: Rigidity Pathologies...'
-\i 02_rigidity_pathologies.sql
+\i schema/02_rigidity_pathologies.sql
 
 \echo '4/7: Fragmentation Pathologies...'
-\i 03_fragmentation_pathologies.sql
+\i schema/03_fragmentation_pathologies.sql
 
 \echo '5/7: Inflation Pathologies...'
-\i 04_inflation_pathologies.sql
+\i schema/04_inflation_pathologies.sql
 
 \echo '6/7: Observer-Coupling Pathologies...'
-\i 05_observer_coupling_pathologies.sql
+\i schema/05_observer_coupling_pathologies.sql
 
 \echo '7/7: Operational Monitoring...'
-\i 06_operational_monitoring.sql
+\i schema/06_operational_monitoring.sql
 
 \echo ''
 \echo 'PRISM Loaded Successfully'
