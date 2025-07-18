@@ -2,7 +2,7 @@
 
 ## Overview
 
-PRISM detects pathological patterns in semantic discourse. It identifies 12 distinct pathology signatures across four categorical domains. Using differential geometry, field theory, and autopoietic dynamics, PRISM predicts and detects emergent coordination and escalation patterns.
+PRISM detects pathological patterns, identifying 12 distinct signatures across four categorical domains. Using differential geometry, field theory, and autopoietic dynamics, PRISM can predict emergent coordination and escalation.
 
 Dynamic systems fail in mathematically predictable ways. Individual cognition, cultural dynamics, and institutional behavior alike exhibit the same geometric signatures when adaptive capacity breaks down.
 
