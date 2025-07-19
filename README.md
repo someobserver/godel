@@ -2,9 +2,9 @@
 
 ## Overview
 
-PRISM detects pathological patterns, identifying 12 distinct signatures across four categorical domains. Using differential geometry, field theory, and autopoietic dynamics, PRISM can predict emergent coordination and escalation.
+PRISM detects coordinated threats in vector databases. It uses field equations to analyze coherence signatures in pgvector geometry across four categorical domains. PRISM is powerful enough to predict coordinated threats, in real-time, before they reach detection thresholds.
 
-Dynamic systems fail in mathematically predictable ways. Individual cognition, cultural dynamics, and institutional behavior alike exhibit the same geometric signatures when adaptive capacity breaks down.
+Dynamic systems fail in mathematically predictable ways. Individual cognition, cultural dynamics, and institutional behavior alike exhibit the same mathematical signatures when adaptive capacity breaks down.
 
 ## Key Features
 
@@ -15,21 +15,18 @@ Dynamic systems fail in mathematically predictable ways. Individual cognition, c
 - Configures detection thresholds
 
 ### Coordination Analysis
-- Analyzes geometric coupling for suspicious clusters
+- Identifies geometric coupling for suspicious clusters
 - Computes Recurgent Field Theory (RFT) confidence scores
 - Measures semantic mass concentration
-- Calculates cluster size and coherence
 
 ### Escalation Prediction
 - Analyzes coherence field acceleration
 - Computes semantic curvature trajectories
 - Scores intervention urgency
-- Simulates field evolution
 
 ### Operational Monitoring
-- Generates real-time pathology alerts with severity classification
-- Detects coordination with confidence levels
-- Provides performance-optimized monitoring views
+- Real-time pathology alerts with severity classification
+- Performance-optimized monitoring views
 
 ## Mathematical Framework
 
@@ -74,23 +71,14 @@ Dynamic systems fail in mathematically predictable ways. Individual cognition, c
 ## Technical Architecture
 
 ### Database Schema
-- Stores semantic field vectors with geometric properties
-- Maintains inter-point relationship tensors
-- Tracks regulatory mechanism values
-- Provides specialized indices for vector similarity and temporal analysis
-
-### Core Functions
-- Implements 12 pathology detection functions (one per pathology)
-- Provides 4 category detection functions (one per pathology class)
-- Performs coordination detection via coupling analysis
-- Executes escalation prediction via field evolution
-- Enables comprehensive pathology scanning
+- Stores semantic/coherence field vectors with geometric properties
+- Maintains inter-point relationship tensors and regulatory values
+- Specialized indices for vector similarity and temporal analysis
 
 ### Performance Optimization
-- Utilizes HNSW indices for semantic and coherence field vectors
-- Maintains composite indices for temporal-semantic queries
-- Indexes coupling magnitude and point relationships
-- Configures severity thresholds for alert tuning
+- HNSW indices for semantic and coherence field vectors
+- Composite indices for temporal-semantic queries
+- Configurable severity thresholds for alert tuning
 
 ## Installation
 
@@ -155,13 +143,6 @@ SELECT * FROM prism.coordination_alerts WHERE priority = 'HIGH';
 SELECT * FROM prism.pathology_alerts WHERE severity > 0.6;
 ```
 
-## Applications
-
-- **Trust & Safety**: Coordination detection, escalation prediction, automated content moderation
-- **Social Media**: Astroturfing detection, toxic conversation prevention, community health monitoring  
-- **Research**: Discourse analysis, social dynamics, communication pattern studies
-- **Enterprise**: Team communication health, organizational dynamics analysis
-
 ## License
 
-MIT License - Copyright 2025 Inside The Black Box LLC 
+MIT License - Copyright 2025 Inside The Black Box LLC
