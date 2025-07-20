@@ -2,9 +2,9 @@
 
 ## Overview
 
-PRISM detects coordinated threats in vector databases. It uses field equations to analyze coherence signatures in pgvector geometry across four categorical domains. PRISM is powerful enough to predict coordinated threats, in real-time, before they reach detection thresholds.
+PRISM identifies emergent imformation pathologies in semantic vector spaces through the analysis of geometric signatures across four primary failure modes. Its field-theoretic algorithms model how meaningful structures deform under stress, detecting breakdown patterns before they become critical failure modes.
 
-Dynamic systems fail in mathematically predictable ways. Individual cognition, cultural dynamics, and institutional behavior alike exhibit the same mathematical signatures when adaptive capacity breaks down.
+The same mathematical signatures appear when any adaptive system fails, whether in individual cognition, cultural dynamics, or institutional behavior. PRISM maps these universal failure modes onto vector geometry, unveiling structural vulnerabilities otherwise invisible to legacy analysis.
 
 ## Key Features
 
