@@ -4,16 +4,20 @@
 
 ## Overview
 
-PRISM monitors information dynamics in vector databases to identify pathological patterns in communication data before they reach critical thresholds. Built on differential geometry principles applied to semantic embeddings, it models information as a high-dimensional geometric field in which healthy adaptive dynamics can break down in mathematically measurable ways.
+PRISM monitors information dynamics in vector databases to identify breakdown patterns and pathologies in communication data before they reach critical thresholds. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
 
 **PRISM detects and forecasts structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
 
-The system identifies 12 distinct failure modes across four categories, which can occur simultaneously. These signatures consistently emerge in individual cognition during psychological crisis, cultural dynamics during social upheaval, institutional behavior during organizational stress, and threatening information dynamics (unintentional, reckless, malicious, or otherwise). The calculus doesn't care about the intent, only the pattern of behavior.
+Calculus doesn't care about the intent, only the pattern of a true pathology. The system identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. Their signatures consistently emerge in cognition during psychological crises, cultural dynamics undergoing social upheaval, institutional behavior during organizational stress, and information dynamics (unintentional, reckless, malicious, or otherwise).
+
+Their downstream effects threaten democracies, institutions, and individuals alike. Detecting and predicting them early is a matter of usingthe same mathematics governing coherence and entropy in all complex systems.
+
+
 
 ## Applications
 
 ### For Investigators & Analysts
-Traditional investigative tools retroactively analyze *what* happened. PRISM proactively analyzes *how* information structures are changing before breakdowns occur. While preserving privacy, it:
+Legacy investigative tools retroactively analyze *what* happened. PRISM <u>proactively</u> analyzes *how* information structures are changing *before breakdowns occur*. While preserving privacy, it:
 
 - Detects threat patterns by analyzing recursive coupling between information sources
 - Measures escalation trajectories using coherence field acceleration and semantic curvature  
@@ -21,7 +25,7 @@ Traditional investigative tools retroactively analyze *what* happened. PRISM pro
 - Generates early warnings with real-time pathology severity scoring and mathematical evidence for each detection
 
 ### For Organizations
-Communication systems under stress exhibit predictable geometric dynamics in their vector representations. PRISM leverages this to:
+At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit highly predictable geometric dynamics in their vector representations. And they do that *ahead of time*. PRISM leverages this to:
 
 - Monitor communication patterns using field-theoretic signatures ***while preserving content privacy***
 - Assess structural rigidity and adaptive capacity in information processing systems
@@ -33,25 +37,37 @@ Communication systems under stress exhibit predictable geometric dynamics in the
 ### Pathology Detection Engine
 Detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0):
 
-**Rigidity Pathologies** *(Over-constraint)*
-- **Attractor Dogmatism**: `A(p,t) > A_crit ∧ ‖∇V(C)‖ ≫ Φ(C)`
-- **Belief Calcification**: `lim[ε→0] dC/dt|C+ε ≈ 0`
-- **Metric Crystallization**: `∂g_ij/∂t → 0 while R_ij ≠ 0`
+**Rigidity Pathologies** *(Over-constraint → brittleness)*
+- **Metric Crystallization**: `∂g_ij/∂t → 0 while R_ij ≠ 0`  
+  *Interpretive frameworks freeze while tensions persist*
+- **Belief Calcification**: `lim[ε→0] dC/dt|C+ε ≈ 0`  
+  *Existing ideas become unresponsive to updated information or challenge*
+- **Attractor Dogmatism**: `A(p,t) > A_crit ∧ ‖∇V(C)‖ ≫ Φ(C)`  
+  *Belief systems calcify and resist adaptive change, despite external pressure*
 
-**Fragmentation Pathologies** *(Under-constraint)*
-- **Attractor Splintering**: `dN_attractors/dt > κ·dΦ(C)/dt`
-- **Coherence Dissolution**: `‖∇C‖ ≫ ‖C‖ ∧ d²C/dt² > 0`
-- **Reference Decay**: `d‖R_ijk‖/dt < 0` without compensation
+**Fragmentation Pathologies** *(Under-constraint → disintegration)*
+- **Attractor Splintering**: `dN_attractors/dt > κ·dΦ(C)/dt`  
+  *Attention fragments faster than coherence can stabilize*
+- **Coherence Dissolution**: `‖∇C‖ ≫ ‖C‖ ∧ d²C/dt² > 0`  
+  *Narrative breakdown accelerates beyond repair capacity*
+- **Reference Decay**: `d‖R_ijk‖/dt < 0` without compensation  
+  *Shared meaning erodes without compensatory mechanisms*
 
-**Inflation Pathologies** *(Runaway Autopoiesis)*
-- **Delusional Expansion**: `Φ(C) ≫ V(C), H[R] ≈ 0, W(p,t) < W_min`
-- **Semantic Hypercoherence**: `C(p,t) > C_max, ∮F_i·dS^i < F_leakage`
-- **Recurgent Parasitism**: `d/dt∫_Ω M(p,t) dV > 0, d/dt∫_{M\Ω} M(p,t) dV < 0`
+**Inflation Pathologies** *(Runaway Autopoiesis → malignancy)*
+- **Recurgent Parasitism**: `d/dt∫_Ω M(p,t) dV > 0, d/dt∫_{M\Ω} M(p,t) dV < 0`  
+  *Local semantic mass grows by directly depleting the broader semantic environment*
+- **Semantic Hypercoherence**: `C(p,t) > C_max, ∮F_i·dS^i < F_leakage`  
+  *Perfect internal consistency isolated from external input*
+- **Delusional Expansion**: `Φ(C) ≫ V(C), H[R] ≈ 0, W(p,t) < W_min`  
+  *Self-reinforcing growth unchecked by wisdom or humility*
 
 **Observer-Coupling Pathologies** *(Interpretation Breakdown)*
-- **Paranoid Interpretation**: `Ĉ_ψ(q,t) ≪ C(q,t), ∀q ∈ Q`
-- **Observer Solipsism**: `‖I_ψ[C] - C‖ > τ‖C‖`
-- **Semantic Narcissism**: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`
+- **Observer Solipsism**: `‖I_ψ[C] - C‖ > τ‖C‖`  
+  *Subjective interpretation diverges from objective reality*
+- **Paranoid Interpretation**: `Ĉ_ψ(q,t) ≪ C(q,t), ∀q ∈ Q`  
+  *Negative bias systematically filters information processing*
+- **Semantic Narcissism**: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`  
+  *Self-reference dominates over external coupling*
 
 ### Coordination Analysis
 - Analyzes geometric coupling between information sources using recursive coupling tensors
