@@ -1,72 +1,129 @@
 # PRISM: Pathology Recognition In Semantic Manifolds
 
+*A geometric analysis system that detects structural failures in information environments using differential geometry applied to semantic vector databases (PostgreSQL + pgvector).*
+
 ## Overview
 
-PRISM identifies emergent imformation pathologies in semantic vector spaces through the analysis of geometric signatures across four primary failure modes. Its field-theoretic algorithms model how meaningful structures deform under stress, detecting breakdown patterns before they become critical failure modes.
+PRISM monitors information dynamics in vector databases to identify pathological patterns in communication data before they reach critical thresholds. Built on differential geometry principles applied to semantic embeddings, it models information as a high-dimensional geometric field in which healthy adaptive dynamics can break down in mathematically measurable ways.
 
-The same mathematical signatures appear when any adaptive system fails, whether in individual cognition, cultural dynamics, or institutional behavior. PRISM maps these universal failure modes onto vector geometry, unveiling structural vulnerabilities otherwise invisible to legacy analysis.
+**PRISM detects and forecasts structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
 
-## Key Features
+The system identifies 12 distinct failure modes across four categories, which can occur simultaneously. These signatures consistently emerge in individual cognition during psychological crisis, cultural dynamics during social upheaval, institutional behavior during organizational stress, and threatening information dynamics (unintentional, reckless, malicious, or otherwise). The calculus doesn't care about the intent, only the pattern of behavior.
 
-### Pathology Detection
-- Detects 12 distinct patterns across 4 categories
-- Scores severity in real-time (0.0-1.0 scale)
-- Generates mathematical evidence for each detection
-- Configures detection thresholds
+## Applications
 
-### Coordination Analysis
-- Identifies geometric coupling for suspicious clusters
-- Computes Recurgent Field Theory (RFT) confidence scores
-- Measures semantic mass concentration
+### For Investigators & Analysts
+Traditional investigative tools retroactively analyze *what* happened. PRISM proactively analyzes *how* information structures are changing before breakdowns occur. While preserving privacy, it:
 
-### Escalation Prediction
-- Analyzes coherence field acceleration
-- Computes semantic curvature trajectories
-- Scores intervention urgency
+- Detects threat patterns by analyzing recursive coupling between information sources
+- Measures escalation trajectories using coherence field acceleration and semantic curvature  
+- Quantifies threat signatures via semantic mass concentration and interpretive breakdown metrics
+- Generates early warnings with real-time pathology severity scoring and mathematical evidence for each detection
 
-### Operational Monitoring
-- Real-time pathology alerts with severity classification
-- Performance-optimized monitoring views
+### For Organizations
+Communication systems under stress exhibit predictable geometric dynamics in their vector representations. PRISM leverages this to:
 
-## Mathematical Framework
+- Monitor communication patterns using field-theoretic signatures ***while preserving content privacy***
+- Assess structural rigidity and adaptive capacity in information processing systems
+- Track communication health via coherence field analysis and coupling strength measurements
+- Support decision-making with quantified vulnerability assessments and trend analysis
 
-### Semantic Manifold Points
-- Semantic field vectors `S(p,t) ∈ ℝ²⁰⁰⁰`
-- Coherence field vectors `C(p,t) ∈ ℝ²⁰⁰⁰` 
-- Metric tensor `g_{ij}(p,t)` derived from field gradients
-- Semantic mass `M(p,t) = D(p,t) · ρ(p,t) · A(p,t)`
+## Capabilities
 
-### Recursive Coupling Tensors
-- Coupling magnitude `‖R_{ijk}(p,q,t)‖`
-- Self-coupling and hetero-coupling decomposition
-- Temporal evolution dynamics
+### Pathology Detection Engine
+Detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0):
 
-### Regulatory Mechanisms
-- Autopoietic function: `Φ(C) = α(C_{mag} - C_{threshold})^β` for `C ≥ threshold`
-- Humility operator: `H[R] = ‖R‖_F · exp(-k(‖R‖_F - R_{optimal}))`
-- Wisdom field modulation: `W(p,t)`
+**Rigidity Pathologies** *(Over-constraint)*
+- **Attractor Dogmatism**: `A(p,t) > A_crit ∧ ‖∇V(C)‖ ≫ Φ(C)`
+- **Belief Calcification**: `lim[ε→0] dC/dt|C+ε ≈ 0`
+- **Metric Crystallization**: `∂g_ij/∂t → 0 while R_ij ≠ 0`
 
-## Pathology Categories
-
-### Rigidity Pathologies (Over-constraint)
-- **Attractor Dogmatism**: `A(p,t) > A_{crit} ∧ ‖∇V(C)‖ ≫ Φ(C)`
-- **Belief Calcification**: `\lim_{ε→0} dC/dt|_{C+ε} ≈ 0`
-- **Metric Crystallization**: `∂g_{ij}/∂t → 0 \text{ while } R_{ij} ≠ 0`
-
-### Fragmentation Pathologies (Under-constraint)
-- **Attractor Splintering**: `dN_{attractors}/dt > κ · dΦ(C)/dt`
+**Fragmentation Pathologies** *(Under-constraint)*
+- **Attractor Splintering**: `dN_attractors/dt > κ·dΦ(C)/dt`
 - **Coherence Dissolution**: `‖∇C‖ ≫ ‖C‖ ∧ d²C/dt² > 0`
-- **Reference Decay**: `d‖R_{ijk}‖/dt < 0 \text{ without compensatory mechanism}`
+- **Reference Decay**: `d‖R_ijk‖/dt < 0` without compensation
 
-### Inflation Pathologies (Runaway autopoiesis)
-- **Delusional Expansion**: `Φ(C) ≫ V(C), H[R] ≈ 0, W(p,t) < W_{min}`
-- **Semantic Hypercoherence**: `C(p,t) > C_{max}, ∮F_i·dS^i < F_{leakage}`
-- **Recurgent Parasitism**: `d/dt∫_Ω M(p,t) dV > 0, d/dt∫_{M∖Ω} M(p,t) dV < 0`
+**Inflation Pathologies** *(Runaway Autopoiesis)*
+- **Delusional Expansion**: `Φ(C) ≫ V(C), H[R] ≈ 0, W(p,t) < W_min`
+- **Semantic Hypercoherence**: `C(p,t) > C_max, ∮F_i·dS^i < F_leakage`
+- **Recurgent Parasitism**: `d/dt∫_Ω M(p,t) dV > 0, d/dt∫_{M\Ω} M(p,t) dV < 0`
 
-### Observer-Coupling Pathologies (Interpretation breakdown)
+**Observer-Coupling Pathologies** *(Interpretation Breakdown)*
 - **Paranoid Interpretation**: `Ĉ_ψ(q,t) ≪ C(q,t), ∀q ∈ Q`
 - **Observer Solipsism**: `‖I_ψ[C] - C‖ > τ‖C‖`
-- **Semantic Narcissism**: `‖R_{ijk}(p,p,t)‖/∫‖R_{ijk}(p,q,t)‖dq → 1`
+- **Semantic Narcissism**: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`
+
+### Coordination Analysis
+- Analyzes geometric coupling between information sources using recursive coupling tensors
+- Scores coordination likelihood through field equation-based confidence metrics
+- Measures information concentration via semantic mass distribution analysis
+- Tracks pattern evolution using temporal field dynamics over configurable time windows
+
+### Escalation Prediction
+- Calculates coherence acceleration through semantic trajectory curvature analysis
+- Identifies threshold approaches via geometric signature trend analysis
+- Ranks intervention urgency using time-sensitive severity scoring algorithms
+- Maps system transitions through field evolution simulation and stability analysis
+
+## Installation
+
+### Requirements
+- PostgreSQL 15+ with `vector` extension
+- `pg_trgm` extension for text similarity operations
+
+### Setup
+```sql
+\i install.sql
+```
+
+Seven schema components load in dependency order:
+1. **Foundation**: Primary geometric structures and their field definitions
+2. **Geometric Analysis**: Differential geometry and tensor calculus operations
+3. **Rigidity Pathologies**: Over-constraint detection algorithms
+4. **Fragmentation Pathologies**: Under-constraint breakdown detection
+5. **Inflation Pathologies**: Identification of runaway autopoietic growth states
+6. **Observer-Coupling Pathologies**: Interpretive failure recognition
+7. **Operational Monitoring**: Real-time alerting and intervention protocols
+
+## Usage
+
+### Primary Detection Interface
+```sql
+-- Comprehensive pathology analysis
+SELECT * FROM prism.detect_all_pathologies(point_id);
+
+-- Category-specific detection
+SELECT * FROM prism.detect_rigidity_pathologies(point_id);
+SELECT * FROM prism.detect_fragmentation_pathologies(point_id);
+SELECT * FROM prism.detect_inflation_pathologies(point_id);
+SELECT * FROM prism.detect_observer_coupling_pathologies(point_id);
+```
+
+### Investigative Analysis
+```sql
+-- Detect coordination patterns
+SELECT * FROM prism.detect_coordination_via_coupling(
+    time_window => '24 hours',
+    coupling_threshold => 0.8,
+    min_cluster_size => 3
+);
+
+-- Predict escalation trajectories  
+SELECT * FROM prism.detect_escalation_via_field_evolution(conversation_points);
+```
+
+### Field Evolution Simulation
+```sql
+-- Simulate coherence field evolution
+SELECT prism.evolve_coherence_field_complete(point_id, dt => 0.01);
+```
+
+### Real-Time Monitoring
+```sql
+-- High-priority alerts
+SELECT * FROM prism.coordination_alerts WHERE priority = 'HIGH';
+SELECT * FROM prism.pathology_alerts WHERE severity > 0.6;
+```
 
 ## Technical Architecture
 
@@ -80,68 +137,40 @@ The same mathematical signatures appear when any adaptive system fails, whether 
 - Composite indices for temporal-semantic queries
 - Configurable severity thresholds for alert tuning
 
-## Installation
+### Computational Methodology
+- Operates in 100-dimensional geometric subspace for efficiency
+- Uses finite difference methods for differential calculations
+- Employs matrix approximation techniques for real-time analysis
 
-### Requirements
-- PostgreSQL with `vector` extension
-- `pg_trgm` extension for text similarity
+## Mathematical Framework
 
-### Setup
-```sql
-\i install.sql
-```
+### Theoretical Foundation
 
-All seven schema components are then loaded in dependency order:
-1. Foundation (core structures)
-2. Geometric analysis (differential geometry)
-3. Rigidity Pathologies
-4. Fragmentation Pathologies  
-5. Inflation Pathologies
-6. Observer-coupling Pathologies
-7. Operational monitoring
+Drawing inspiration from:
+- **Differential Geometry**: Semantic manifolds with dynamic metric tensors
+- **Field Theory**: Coherence fields and recursive coupling dynamics  
+- **Gravitational Concepts**: Semantic mass influences information geometry
+- **Complex Systems**: Stability analysis and pathological attractors
+- **Information Theory**: Entropy and constraint dynamics in communication systems
 
-## Usage
+### Central Mathematical Objects
 
-### Primary Detection Interface
-```sql
--- Comprehensive pathology scan
-SELECT * FROM prism.detect_all_pathologies(point_id);
+**Semantic Manifold Points**
+- Semantic field vectors: `S(p,t) ∈ ℝ^2000`
+- Coherence field vectors: `C(p,t) ∈ ℝ^2000`
+- Metric tensor: `g_ij(p,t)` derived from field gradients (computed in 100-dimensional subspace)
+- Semantic mass: `M(p,t) = D(p,t) · ρ(p,t) · A(p,t)`
 
--- Category-specific detection
-SELECT * FROM prism.detect_rigidity_pathologies(point_id);
-SELECT * FROM prism.detect_fragmentation_pathologies(point_id);
-SELECT * FROM prism.detect_inflation_pathologies(point_id);
-SELECT * FROM prism.detect_observer_coupling_pathologies(point_id);
-```
+**Recursive Coupling Tensors**
+- Coupling magnitude: `‖R_ijk(p,q,t)‖`
+- Self-coupling vs. hetero-coupling decomposition
+- Temporal evolution dynamics
+- Cross-domain communication pathways
 
-### Coordination Analysis
-```sql
--- Detect suspicious coordination patterns
-SELECT * FROM prism.detect_coordination_via_coupling(
-    time_window => '24 hours',
-    coupling_threshold => 0.8,
-    min_cluster_size => 3
-);
-```
-
-### Escalation Prediction
-```sql
--- Predict escalation trajectories
-SELECT * FROM prism.detect_escalation_via_field_evolution(conversation_points);
-```
-
-### Field Evolution Simulation
-```sql
--- Simulate coherence field evolution
-SELECT prism.evolve_coherence_field_complete(point_id, dt => 0.01);
-```
-
-### Monitoring Views
-```sql
--- Real-time alerts
-SELECT * FROM prism.coordination_alerts WHERE priority = 'HIGH';
-SELECT * FROM prism.pathology_alerts WHERE severity > 0.6;
-```
+**Regulatory Mechanisms**
+- Autopoietic function: `Φ(C) = α(C_mag - C_threshold)^β` for `C ≥ threshold`
+- Humility operator: `H[R] = ‖R‖_F · exp(-k(‖R‖_F - R_optimal))`
+- Wisdom field modulation: `W(p,t)` for foresight-driven regulation
 
 ## License
 
