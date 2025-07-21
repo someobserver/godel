@@ -35,7 +35,7 @@ At all scales, communication systems under stress, duress, dogmatism, delusion, 
 ## Capabilities
 
 ### Pathology Detection Engine
-Algorithmically detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0):
+Algorithmically detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection:
 
 **Rigidity Pathologies** *(Over-constraint → brittleness)*
 - **Metric Crystallization**: `∂g_ij/∂t → 0 while R_ij ≠ 0`  
