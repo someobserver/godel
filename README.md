@@ -20,7 +20,7 @@ Loaded sentence incoming:
 
 PRISM monitors information dynamics in vector databases to identify breakdown patterns and pathologies in communication data before they reach critical thresholds. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
 
-**PRISM detects and forecasts structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
+**PRISM detects and forecasts these structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
 
 Calculus doesn't care about the intent, only the pattern of a true pathology. The system identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. Their signatures consistently emerge in cognition during psychological crises, cultural dynamics undergoing social upheaval, institutional behavior during organizational stress, and information dynamics (unintentional, reckless, malicious, or otherwise).
 
