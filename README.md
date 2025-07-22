@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Published](https://img.shields.io/badge/Published-July%202025-blue.svg)](https://github.com/someobserver/prism/releases/latest)
 
-*A geometric analysis system that detects structural failures in information environments using differential geometry applied to semantic vector databases (PostgreSQL + pgvector).*
+*A geometric analysis system able to detect structural failures in information environments using differential geometry applied to semantic vector databases (PostgreSQL + pgvector).*
 
 ## Table of Contents
 
