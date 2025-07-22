@@ -1,6 +1,8 @@
 # PRISM: Pathology Recognition In Semantic Manifolds
 
-[![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Uses](https://img.shields.io/badge/uses-PostgreSQL-darkgreen.svg)](https://github.com/pgvector/pgvector) [![Published](https://img.shields.io/badge/published-July%202025-blue.svg)](https://github.com/someobserver/prism/releases/latest)
+[![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Uses](https://img.shields.io/badge/uses-PostgreSQL%2015%2B-darkgreen.svg)](https://github.com/pgvector/pgvector)
+
+Loaded sentence incoming:
 
 *A geometric analysis system able to detect structural failures in information environments using differential geometry applied to semantic vector databases (PostgreSQL + pgvector).*
 
