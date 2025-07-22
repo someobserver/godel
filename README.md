@@ -48,10 +48,20 @@ At all scales, communication systems under stress, duress, dogmatism, delusion, 
 
 ## Capabilities
 
+### Coordination Analysis
+- Analyzes geometric coupling between information sources using recursive coupling tensors
+- Scores coordination likelihood through field equation-based confidence metrics
+- Measures information concentration via semantic mass distribution analysis
+- Tracks pattern evolution using temporal field dynamics over configurable time windows
+
+### Escalation Prediction
+- Calculates coherence acceleration through semantic trajectory curvature analysis
+- Identifies threshold approaches via geometric signature trend analysis
+- Ranks intervention urgency using time-sensitive severity scoring algorithms
+- Maps system transitions through field evolution simulation and stability analysis
+
 ### Pathology Detection Engine
 Algorithmically detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection in the following categories:
-
----
 
 #### <span style="color: #EA503F">Rigidity Pathologies</span> *(Over-constraint → brittleness)*
 
@@ -108,18 +118,6 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
   - Signature: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`  
 
 ---
-
-### Coordination Analysis
-- Analyzes geometric coupling between information sources using recursive coupling tensors
-- Scores coordination likelihood through field equation-based confidence metrics
-- Measures information concentration via semantic mass distribution analysis
-- Tracks pattern evolution using temporal field dynamics over configurable time windows
-
-### Escalation Prediction
-- Calculates coherence acceleration through semantic trajectory curvature analysis
-- Identifies threshold approaches via geometric signature trend analysis
-- Ranks intervention urgency using time-sensitive severity scoring algorithms
-- Maps system transitions through field evolution simulation and stability analysis
 
 ## Installation
 
