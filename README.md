@@ -51,37 +51,77 @@ At all scales, communication systems under stress, duress, dogmatism, delusion, 
 ### Pathology Detection Engine
 Algorithmically detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection:
 
-**Rigidity Pathologies** *(Over-constraint → brittleness)*
-- **Metric Crystallization**: `∂g_ij/∂t → 0 while R_ij ≠ 0`  
-  *Interpretive frameworks freeze while tensions persist*
-- **Belief Calcification**: `lim[ε→0] dC/dt|C+ε ≈ 0`  
-  *Existing ideas become unresponsive to updated information or challenge*
-- **Attractor Dogmatism**: `A(p,t) > A_crit ∧ ‖∇V(C)‖ ≫ Φ(C)`  
-  *Belief systems calcify and resist adaptive change, despite external pressure*
+---
 
-**Fragmentation Pathologies** *(Under-constraint → disintegration)*
-- **Attractor Splintering**: `dN_attractors/dt > κ·dΦ(C)/dt`  
-  *Attention fragments faster than coherence can stabilize*
-- **Coherence Dissolution**: `‖∇C‖ ≫ ‖C‖ ∧ d²C/dt² > 0`  
-  *Narrative breakdown accelerates beyond repair capacity*
-- **Reference Decay**: `d‖R_ijk‖/dt < 0` without compensation  
-  *Shared meaning erodes without compensatory mechanisms*
+<div style="border-left: 4px solid #EA503F; padding-left: 16px; margin: 16px 0">
 
-**Inflation Pathologies** *(Runaway Autopoiesis → malignancy)*
-- **Recurgent Parasitism**: `d/dt∫_Ω M(p,t) dV > 0, d/dt∫_{M\Ω} M(p,t) dV < 0`  
-  *Local semantic mass grows by directly depleting the broader semantic environment*
-- **Semantic Hypercoherence**: `C(p,t) > C_max, ∮F_i·dS^i < F_leakage`  
-  *Perfect internal consistency isolated from external input*
-- **Delusional Expansion**: `Φ(C) ≫ V(C), H[R] ≈ 0, W(p,t) < W_min`  
-  *Self-reinforcing growth unchecked by wisdom or humility*
+#### Rigidity Pathologies *(Over-constraint → brittleness)*
 
-**Observer-Coupling Pathologies** *(Interpretation Breakdown)*
-- **Observer Solipsism**: `‖I_ψ[C] - C‖ > τ‖C‖`  
-  *Subjective interpretation diverges from objective reality*
-- **Paranoid Interpretation**: `Ĉ_ψ(q,t) ≪ C(q,t), ∀q ∈ Q`  
-  *Negative bias systematically filters information processing*
-- **Semantic Narcissism**: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`  
-  *Self-reference dominates over external coupling*
+- **Metric Crystallization**
+  - *Interpretive frameworks freeze while tensions persist*
+  - Signature: `∂g_ij/∂t → 0 while R_ij ≠ 0`  
+- **Belief Calcification**
+  - *Existing ideas become unresponsive to updated information or challenge*
+  - Signature: `lim[ε→0] dC/dt|C+ε ≈ 0`  
+- **Attractor Dogmatism**
+  - *Belief systems calcify and resist adaptive change, despite external pressure*
+  - Signature: `A(p,t) > A_crit ∧ ‖∇V(C)‖ ≫ Φ(C)`  
+
+</div>
+
+---
+
+<div style="border-left: 4px solid #FF9800; padding-left: 16px; margin: 16px 0">
+
+#### Fragmentation Pathologies *(Under-constraint → disintegration)*
+
+- **Attractor Splintering**
+  - *Attention fragments faster than coherence can stabilize*
+  - Signature: `dN_attractors/dt > κ·dΦ(C)/dt`  
+- **Coherence Dissolution**
+  - *Narrative breakdown accelerates beyond repair capacity*
+  - Signature: `‖∇C‖ ≫ ‖C‖ ∧ d²C/dt² > 0`  
+- **Reference Decay**
+  - *Shared meaning erodes without compensatory mechanisms*
+  - Signature: `d‖R_ijk‖/dt < 0` without compensation  
+
+</div>
+
+---
+
+<div style="border-left: 4px solid #9C27B0; padding-left: 16px; margin: 16px 0">
+
+#### Inflation Pathologies *(Runaway Autopoiesis → malignancy)*
+
+- **Recurgent Parasitism**
+  - *Local semantic mass grows by directly depleting the broader semantic environment*
+  - Signature: `d/dt∫_Ω M(p,t) dV > 0, d/dt∫_{M\Ω} M(p,t) dV < 0`  
+- **Semantic Hypercoherence**
+  - *Perfect internal consistency isolated from external input*
+  - Signature: `C(p,t) > C_max, ∮F_i·dS^i < F_leakage`  
+- **Delusional Expansion**
+  - *Self-reinforcing growth unchecked by wisdom or humility*
+  - Signature: `Φ(C) ≫ V(C), H[R] ≈ 0, W(p,t) < W_min`  
+
+</div>
+
+---
+
+<div style="border-left: 4px solid #1389c4; padding-left: 16px; margin: 16px 0">
+
+#### Observer-Coupling Pathologies *(Interpretation Breakdowns)*
+
+- **Observer Solipsism**
+  - *Subjective interpretation diverges from objective reality*
+  - Signature: `‖I_ψ[C] - C‖ > τ‖C‖`  
+- **Paranoid Interpretation**
+  - *Negative bias systematically filters information processing*
+  - Signature: `Ĉ_ψ(q,t) ≪ C(q,t), ∀q ∈ Q`  
+- **Semantic Narcissism**
+  - *Self-reference dominates over external coupling*
+  - Signature: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`  
+
+</div>
 
 ### Coordination Analysis
 - Analyzes geometric coupling between information sources using recursive coupling tensors
