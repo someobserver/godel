@@ -1,6 +1,18 @@
 # PRISM: Pathology Recognition In Semantic Manifolds
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Published](https://img.shields.io/badge/Published-July%202025-blue.svg)](https://github.com/someobserver/prism/releases/latest)
+
 *A geometric analysis system that detects structural failures in information environments using differential geometry applied to semantic vector databases (PostgreSQL + pgvector).*
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Applications](#applications)
+- [Capabilities](#capabilities)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Technical Architecture](#technical-architecture)
+- [Mathematical Framework](#mathematical-framework)
 
 ## Overview
 
@@ -84,8 +96,12 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
 ## Installation
 
 ### Requirements
-- PostgreSQL 15+ with `vector` extension
-- `pg_trgm` extension for text similarity operations
+
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue.svg)](https://postgresql.org/)
+[![Extensions](https://img.shields.io/badge/Extensions-pgvector%200.5.0%2B-purple.svg)](https://github.com/pgvector/pgvector)
+
+- PostgreSQL 15+
+- pgvector 0.5.0+
 
 ### Setup
 ```sql
@@ -187,7 +203,3 @@ Drawing inspiration from:
 - Autopoietic function: `Φ(C) = α(C_mag - C_threshold)^β` for `C ≥ threshold`
 - Humility operator: `H[R] = ‖R‖_F · exp(-k(‖R‖_F - R_optimal))`
 - Wisdom field modulation: `W(p,t)` for foresight-driven regulation
-
-## License
-
-MIT License - Copyright 2025 Inside The Black Box LLC
