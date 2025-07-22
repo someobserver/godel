@@ -22,7 +22,7 @@ PRISM monitors information dynamics in vector databases to identify breakdown pa
 
 **PRISM detects and forecasts these structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
 
-Calculus doesn't care about the intent, only the pattern of a true pathology. The system identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. Their signatures consistently emerge in cognition during psychological crises, cultural dynamics undergoing social upheaval, institutional behavior during organizational stress, and information dynamics (unintentional, reckless, malicious, or otherwise).
+Calculus doesn't care about the intent, only the pattern of a true pathology. The system identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. Their signatures emerge (consistently) in cognition during psychological crises, cultural dynamics undergoing social upheaval, institutional behavior during organizational stress, and information dynamics (unintentional, reckless, malicious, or otherwise).
 
 Their downstream effects threaten democracies, organizations, and individuals alike. Detecting and predicting them early is a matter of using the same mathematics governing coherence and entropy in all complex systems.
 
