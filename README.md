@@ -49,13 +49,11 @@ At all scales, communication systems under stress, duress, dogmatism, delusion, 
 ## Capabilities
 
 ### Pathology Detection Engine
-Algorithmically detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection:
+Algorithmically detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection in the following categories:
 
 ---
 
-<div style="border-left: 4px solid #EA503F; padding-left: 16px; margin: 16px 0">
-
-#### Rigidity Pathologies *(Over-constraint → brittleness)*
+#### <span style="color: #EA503F">Rigidity Pathologies</span> *(Over-constraint → brittleness)*
 
 - **Metric Crystallization**
   - *Interpretive frameworks freeze while tensions persist*
@@ -67,13 +65,9 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
   - *Belief systems calcify and resist adaptive change, despite external pressure*
   - Signature: `A(p,t) > A_crit ∧ ‖∇V(C)‖ ≫ Φ(C)`  
 
-</div>
-
 ---
 
-<div style="border-left: 4px solid #FF9800; padding-left: 16px; margin: 16px 0">
-
-#### Fragmentation Pathologies *(Under-constraint → disintegration)*
+#### <span style="color: #FF9800">Fragmentation Pathologies</span> *(Under-constraint → disintegration)*
 
 - **Attractor Splintering**
   - *Attention fragments faster than coherence can stabilize*
@@ -85,13 +79,9 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
   - *Shared meaning erodes without compensatory mechanisms*
   - Signature: `d‖R_ijk‖/dt < 0` without compensation  
 
-</div>
-
 ---
 
-<div style="border-left: 4px solid #9C27B0; padding-left: 16px; margin: 16px 0">
-
-#### Inflation Pathologies *(Runaway Autopoiesis → malignancy)*
+#### <span style="color: #9C27B0">Inflation Pathologies</span> *(Runaway Autopoiesis → malignancy)*
 
 - **Recurgent Parasitism**
   - *Local semantic mass grows by directly depleting the broader semantic environment*
@@ -103,13 +93,9 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
   - *Self-reinforcing growth unchecked by wisdom or humility*
   - Signature: `Φ(C) ≫ V(C), H[R] ≈ 0, W(p,t) < W_min`  
 
-</div>
-
 ---
 
-<div style="border-left: 4px solid #1389c4; padding-left: 16px; margin: 16px 0">
-
-#### Observer-Coupling Pathologies *(Interpretation Breakdowns)*
+#### <span style="color: #1389c4">Observer-Coupling Pathologies</span> *(Interpretation Breakdowns)*
 
 - **Observer Solipsism**
   - *Subjective interpretation diverges from objective reality*
@@ -121,7 +107,7 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
   - *Self-reference dominates over external coupling*
   - Signature: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`  
 
-</div>
+---
 
 ### Coordination Analysis
 - Analyzes geometric coupling between information sources using recursive coupling tensors
