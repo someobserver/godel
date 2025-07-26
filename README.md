@@ -9,8 +9,8 @@ Loaded sentence incoming:
 ## Table of Contents
 
 - [Overview](#overview)
-- [Applications](#applications)
 - [Capabilities](#capabilities)
+- [Applications](#applications)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Technical Architecture](#technical-architecture)
@@ -20,31 +20,11 @@ Loaded sentence incoming:
 
 PRISM monitors information dynamics in vector databases to identify breakdown patterns and pathologies in communication data before they reach critical thresholds. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
 
-**PRISM detects and forecasts these structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
+**The system detects and forecasts these structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
 
 Calculus doesn't care about the intent, only the pattern of a true pathology. The system identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. Their signatures emerge (consistently) in cognition during psychological crises, cultural dynamics undergoing social upheaval, institutional behavior during organizational stress, and information dynamics (unintentional, reckless, malicious, or otherwise).
 
 Their downstream effects threaten democracies, organizations, and individuals alike. Detecting and predicting them early is a matter of using the same mathematics governing coherence and entropy in all complex systems.
-
-
-
-## Applications
-
-### For Investigators & Analysts
-Legacy investigative tools retroactively analyze *what* happened. PRISM <u>proactively</u> analyzes *how* information structures are changing *before breakdowns occur*. While preserving privacy, it:
-
-- Detects threat patterns by analyzing recursive coupling between information sources
-- Measures escalation trajectories using coherence field acceleration and semantic curvature  
-- Quantifies threat signatures via semantic mass concentration and interpretive breakdown metrics
-- Generates early warnings with real-time pathology severity scoring and mathematical evidence for each detection
-
-### For Organizations
-At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit highly predictable geometric dynamics in their vector representations. And they do that *ahead of time*. PRISM leverages this to:
-
-- Monitor communication patterns using field-theoretic signatures ***while preserving content privacy***
-- Assess structural rigidity and adaptive capacity in information processing systems
-- Track communication health via coherence field analysis and coupling strength measurements
-- Support decision-making with quantified vulnerability assessments and trend analysis
 
 ## Capabilities
 
@@ -119,6 +99,24 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
 
 ---
 
+## Applications
+
+### For Investigators & Analysts
+Legacy investigative tools retroactively analyze *what* happened. PRISM <u>proactively</u> analyzes *how* information structures are changing *before breakdowns occur*. While preserving privacy, it:
+
+- Detects threat patterns by analyzing recursive coupling between information sources
+- Measures escalation trajectories using coherence field acceleration and semantic curvature  
+- Quantifies threat signatures via semantic mass concentration and interpretive breakdown metrics
+- Generates early warnings with real-time pathology severity scoring and mathematical evidence for each detection
+
+### For Organizations
+At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit highly predictable geometric dynamics in their vector representations. And they do that *ahead of time*. PRISM leverages this to:
+
+- Monitor communication patterns using field-theoretic signatures ***while preserving content privacy***
+- Assess structural rigidity and adaptive capacity in information processing systems
+- Track communication health via coherence field analysis and coupling strength measurements
+- Support decision-making with quantified vulnerability assessments and trend analysis
+
 ## Installation
 
 ### Requirements
@@ -134,14 +132,15 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
 \i install.sql
 ```
 
-Seven schema components load in dependency order:
-1. **Foundation**: Primary geometric structures and their field definitions
-2. **Geometric Analysis**: Differential geometry and tensor calculus operations
-3. **Rigidity Pathologies**: Over-constraint detection algorithms
+### Components
+Seven schema modules provide pathology detection capabilities:
+1. **Foundation**: Geometric structures and field definitions
+2. **Geometric Analysis**: Differential geometry operations
+3. **Rigidity Pathologies**: Over-constraint detection
 4. **Fragmentation Pathologies**: Under-constraint breakdown detection
-5. **Inflation Pathologies**: Identification of runaway autopoietic growth states
+5. **Inflation Pathologies**: Runaway autopoietic growth detection
 6. **Observer-Coupling Pathologies**: Interpretive failure recognition
-7. **Operational Monitoring**: Real-time alerting and intervention protocols
+7. **Operational Monitoring**: Real-time alerting protocols
 
 ## Usage
 
