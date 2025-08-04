@@ -1,7 +1,7 @@
--- PRISM: Pathology Recognition In Semantic Manifolds
+-- PRISMA: Pattern Recognition in Semantic Manifold Analysis
 -- Fragmentation Pathologies: under-constraint detection
 -- File: 03_fragmentation_pathologies.sql
--- Updated: 2025-07-01
+-- Updated: 2025-08-04
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
@@ -15,7 +15,7 @@
 
 -- Attractor Splintering
 -- Signature: dN_attractors/dt > κ·dΦ(C)/dt
-CREATE OR REPLACE FUNCTION prism.detect_attractor_splintering(
+CREATE OR REPLACE FUNCTION prisma.detect_attractor_splintering(
     point_id UUID,
     splintering_threshold FLOAT DEFAULT 2.0,
     time_window INTERVAL DEFAULT '2 hours'
@@ -41,7 +41,7 @@ DECLARE
 BEGIN
     SELECT coherence_field
     INTO current_coherence
-    FROM prism.manifold_points WHERE id = point_id;
+    FROM prisma.manifold_points WHERE id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -52,9 +52,9 @@ BEGIN
     
     FOR rec IN (
         SELECT mp.coherence_field, mp.coherence_magnitude, mp.creation_timestamp
-        FROM prism.manifold_points mp
+        FROM prisma.manifold_points mp
         WHERE mp.conversation_id = (
-            SELECT conversation_id FROM prism.manifold_points WHERE id = point_id
+            SELECT conversation_id FROM prisma.manifold_points WHERE id = point_id
         )
         AND mp.creation_timestamp >= NOW() - time_window
         ORDER BY mp.creation_timestamp
@@ -78,7 +78,7 @@ BEGIN
             EXTRACT(EPOCH FROM time_window) * 3600.0;
         
         autopoietic_generation_rate := GREATEST(0.0, 
-            prism.compute_autopoietic_potential(coherence_mag) * 
+            prisma.compute_autopoietic_potential(coherence_mag) * 
             direction_variance / total_samples
         );
         
@@ -104,7 +104,7 @@ $$;
 
 -- Coherence Dissolution
 -- Signature: ||∇C|| >> ||C|| AND d²C/dt² > 0
-CREATE OR REPLACE FUNCTION prism.detect_coherence_dissolution(
+CREATE OR REPLACE FUNCTION prisma.detect_coherence_dissolution(
     point_id UUID,
     gradient_ratio_threshold FLOAT DEFAULT 3.0,
     acceleration_threshold FLOAT DEFAULT 0.0
@@ -128,7 +128,7 @@ DECLARE
 BEGIN
     SELECT coherence_field, metric_tensor
     INTO current_coherence, metric_tensor
-    FROM prism.manifold_points WHERE id = point_id;
+    FROM prisma.manifold_points WHERE id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -137,7 +137,7 @@ BEGIN
     coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) 
                               FROM generate_series(1, LEAST(dim, 2000)) i)));
     
-    SELECT * INTO derivatives FROM prism.compute_finite_differences(point_id);
+    SELECT * INTO derivatives FROM prisma.compute_finite_differences(point_id);
     
     IF derivatives IS NOT NULL THEN
         coherence_gradient_norm := sqrt(sum((SELECT pow(derivatives.first_derivatives[i], 2) 
@@ -167,7 +167,7 @@ $$;
 
 -- Reference Decay
 -- Signature: d||R_ijk||/dt < 0 without compensatory mechanism
-CREATE OR REPLACE FUNCTION prism.detect_reference_decay(
+CREATE OR REPLACE FUNCTION prisma.detect_reference_decay(
     point_id UUID,
     decay_threshold FLOAT DEFAULT -0.1,
     wisdom_compensation_threshold FLOAT DEFAULT 0.3
@@ -191,13 +191,13 @@ DECLARE
 BEGIN
     SELECT wisdom_value, humility_factor
     INTO current_wisdom, humility_factor
-    FROM prism.wisdom_field
+    FROM prisma.wisdom_field
     WHERE point_id = detect_reference_decay.point_id
     ORDER BY computed_at DESC LIMIT 1;
     
     FOR rec IN (
         SELECT rc.coupling_magnitude, rc.computed_at
-        FROM prism.recursive_coupling rc
+        FROM prisma.recursive_coupling rc
         WHERE rc.point_p = point_id OR rc.point_q = point_id
         ORDER BY rc.computed_at DESC
         LIMIT 10
@@ -236,7 +236,7 @@ END;
 $$;
 
 -- Combined fragmentation model
-CREATE OR REPLACE FUNCTION prism.detect_fragmentation_pathologies(
+CREATE OR REPLACE FUNCTION prisma.detect_fragmentation_pathologies(
     point_id UUID
 ) RETURNS TABLE(
     pathology_type TEXT,
@@ -245,9 +245,9 @@ CREATE OR REPLACE FUNCTION prism.detect_fragmentation_pathologies(
     mathematical_evidence TEXT
 ) LANGUAGE plpgsql AS $$
 BEGIN
-    RETURN QUERY SELECT * FROM prism.detect_attractor_splintering(point_id);
-    RETURN QUERY SELECT * FROM prism.detect_coherence_dissolution(point_id);
-    RETURN QUERY SELECT * FROM prism.detect_reference_decay(point_id);
+    RETURN QUERY SELECT * FROM prisma.detect_attractor_splintering(point_id);
+    RETURN QUERY SELECT * FROM prisma.detect_coherence_dissolution(point_id);
+    RETURN QUERY SELECT * FROM prisma.detect_reference_decay(point_id);
     RETURN;
 END;
 $$;
@@ -255,7 +255,7 @@ $$;
 -- Helper functions
 
 -- Coherence field derivatives
-CREATE OR REPLACE FUNCTION prism.compute_finite_differences(
+CREATE OR REPLACE FUNCTION prisma.compute_finite_differences(
     point_id UUID,
     h FLOAT DEFAULT 1e-6
 ) RETURNS TABLE(
@@ -271,7 +271,7 @@ DECLARE
 BEGIN
     SELECT coherence_field
     INTO current_coherence
-    FROM prism.manifold_points WHERE id = point_id;
+    FROM prisma.manifold_points WHERE id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN QUERY SELECT 

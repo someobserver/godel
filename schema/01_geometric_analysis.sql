@@ -1,7 +1,7 @@
--- PRISM: Pathology Recognition in Semantic Manifolds
+-- PRISMA: Pattern Recognition in Semantic Manifold Analysis
 -- Geometric Analysis
 -- File: 01_geometric_analysis.sql
--- Updated: 2025-07-01
+-- Updated: 2025-08-04
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
@@ -19,7 +19,7 @@
 -- Geometric operations
 
 -- Christoffel symbols: Γᵏᵢⱼ = ½gᵏˡ(∂ᵢgⱼˡ + ∂ⱼgᵢˡ - ∂ˡgᵢⱼ)
-CREATE OR REPLACE FUNCTION prism.compute_christoffel_symbols(
+CREATE OR REPLACE FUNCTION prisma.compute_christoffel_symbols(
     metric_components FLOAT[],
     metric_derivatives FLOAT[][],
     dimension INTEGER DEFAULT 100
@@ -32,7 +32,7 @@ DECLARE
 BEGIN
     christoffel := ARRAY(SELECT 0.0 FROM generate_series(1, dimension * dimension * dimension));
     
-    g_inv := prism.compute_metric_inverse(metric_components, dimension);
+    g_inv := prisma.compute_metric_inverse(metric_components, dimension);
     
     FOR k IN 1..dimension LOOP
         FOR i IN 1..dimension LOOP
@@ -57,7 +57,7 @@ END;
 $$;
 
 -- Covariant derivative: ∇ᵢVⱼ = ∂ᵢVⱼ - ΓᵏᵢⱼVₖ
-CREATE OR REPLACE FUNCTION prism.covariant_derivative(
+CREATE OR REPLACE FUNCTION prisma.covariant_derivative(
     field_components VECTOR(2000),
     field_derivatives FLOAT[][],
     christoffel_symbols FLOAT[],
@@ -84,7 +84,7 @@ $$;
 -- Metric tensors
 
 -- Build metric tensor gᵢⱼ from semantic field gradients
-CREATE OR REPLACE FUNCTION prism.compute_metric_tensor_from_semantic_field(
+CREATE OR REPLACE FUNCTION prisma.compute_metric_tensor_from_semantic_field(
     semantic_field VECTOR(2000),
     neighboring_fields VECTOR(2000)[],
     base_metric_scale FLOAT DEFAULT 1.0
@@ -137,7 +137,7 @@ END;
 $$;
 
 -- Metric inverse: gᵢʲ such that gᵢₖgᵏʲ = δᵢʲ
-CREATE OR REPLACE FUNCTION prism.compute_metric_inverse(
+CREATE OR REPLACE FUNCTION prisma.compute_metric_inverse(
     metric_components FLOAT[],
     dimension INTEGER DEFAULT 100
 ) RETURNS FLOAT[] LANGUAGE plpgsql AS $$
@@ -165,7 +165,7 @@ BEGIN
         END LOOP;
     END LOOP;
     
-    det_g := prism.matrix_determinant(metric_matrix, n);
+    det_g := prisma.matrix_determinant(metric_matrix, n);
     
     -- Regularization
     IF ABS(det_g) < 1e-10 THEN
@@ -174,7 +174,7 @@ BEGIN
         END LOOP;
     END IF;
     
-    inverse_matrix := prism.matrix_inverse_gauss_jordan(metric_matrix, n);
+    inverse_matrix := prisma.matrix_inverse_gauss_jordan(metric_matrix, n);
     
     inverse_components := ARRAY(SELECT 0.0 FROM generate_series(1, n * n));
     idx := 1;
@@ -192,7 +192,7 @@ $$;
 -- Linear algebra
 
 -- Matrix determinant w/ partial pivoting
-CREATE OR REPLACE FUNCTION prism.matrix_determinant(
+CREATE OR REPLACE FUNCTION prisma.matrix_determinant(
     matrix FLOAT[][],
     n INTEGER
 ) RETURNS FLOAT LANGUAGE plpgsql AS $$
@@ -247,7 +247,7 @@ END;
 $$;
 
 -- Gauss-Jordan matrix inversion
-CREATE OR REPLACE FUNCTION prism.matrix_inverse_gauss_jordan(
+CREATE OR REPLACE FUNCTION prisma.matrix_inverse_gauss_jordan(
     matrix FLOAT[][],
     n INTEGER
 ) RETURNS FLOAT[][] LANGUAGE plpgsql AS $$
@@ -301,7 +301,7 @@ $$;
 -- Curvature calculations
 
 -- Ricci curvature: Rᵢⱼ = ∂ₖΓᵏᵢⱼ - ∂ⱼΓᵏᵢₖ + ΓˡᵢⱼΓᵏₖₗ - ΓˡᵢₖΓᵏⱼₗ
-CREATE OR REPLACE FUNCTION prism.compute_ricci_curvature(
+CREATE OR REPLACE FUNCTION prisma.compute_ricci_curvature(
     christoffel_symbols FLOAT[],
     christoffel_derivatives FLOAT[][][],
     dimension INTEGER DEFAULT 100
@@ -354,7 +354,7 @@ END;
 $$;
 
 -- Scalar curvature
-CREATE OR REPLACE FUNCTION prism.compute_scalar_curvature(
+CREATE OR REPLACE FUNCTION prisma.compute_scalar_curvature(
     ricci_components FLOAT[],
     metric_inverse FLOAT[],
     dimension INTEGER DEFAULT 100
@@ -374,7 +374,7 @@ $$;
 -- Geodesic
 
 -- Distance integration between manifold points
-CREATE OR REPLACE FUNCTION prism.integrate_geodesic_distance(
+CREATE OR REPLACE FUNCTION prisma.integrate_geodesic_distance(
     point_a UUID,
     point_b UUID,
     num_steps INTEGER DEFAULT 100
@@ -403,12 +403,12 @@ DECLARE
 BEGIN
     SELECT semantic_field, metric_tensor, christoffel_symbols
     INTO pa_coords, pa_metric, pa_christoffel
-    FROM prism.manifold_points 
+    FROM prisma.manifold_points 
     WHERE id = point_a;
     
     SELECT semantic_field, metric_tensor, christoffel_symbols
     INTO pb_coords, pb_metric, pb_christoffel
-    FROM prism.manifold_points 
+    FROM prisma.manifold_points 
     WHERE id = point_b;
     
     IF pa_coords IS NULL OR pb_coords IS NULL THEN
@@ -482,7 +482,7 @@ $$;
 -- Coupling analysis
 
 -- Recursive coupling tensor: R_ijk(p,q) 
-CREATE OR REPLACE FUNCTION prism.compute_recursive_coupling_tensor(
+CREATE OR REPLACE FUNCTION prisma.compute_recursive_coupling_tensor(
     point_p UUID,
     point_q UUID,
     h FLOAT DEFAULT 1e-6
@@ -502,11 +502,11 @@ DECLARE
 BEGIN
     SELECT semantic_field, coherence_field 
     INTO semantic_p, coherence_p
-    FROM prism.manifold_points WHERE id = point_p;
+    FROM prisma.manifold_points WHERE id = point_p;
     
     SELECT semantic_field
     INTO semantic_q
-    FROM prism.manifold_points WHERE id = point_q;
+    FROM prisma.manifold_points WHERE id = point_q;
     
     IF semantic_p IS NULL OR semantic_q IS NULL THEN
         RETURN ARRAY(SELECT 0.0 FROM generate_series(1, dim*dim*dim));

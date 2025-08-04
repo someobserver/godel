@@ -1,14 +1,14 @@
--- PRISM: Pathology Recognition In Semantic Manifolds
+-- PRISMA: Pattern Recognition in Semantic Manifold Analysis
 -- Main Runner
--- File: run_prism.sql
--- Updated: 2025-07-01
+-- File: run_prisma.sql
+-- Updated: 2025-08-04
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
 -- 
 -- SPDX-License-Identifier: MIT
 
-\echo 'Loading PRISM...'
+\echo 'Loading PRISMA...'
 
 \echo '1/7: Foundation...'
 \i schema/00_foundation.sql
@@ -32,7 +32,7 @@
 \i schema/06_operational_monitoring.sql
 
 \echo ''
-\echo 'PRISM Loaded Successfully'
+\echo 'PRISMA Loaded Successfully'
 \echo ''
 \echo 'Components:'
 \echo '- 12 Pathology Detection Functions (4 categories x 3 pathologies each)'

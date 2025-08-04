@@ -1,7 +1,7 @@
--- PRISM: Pathology Recognition In Semantic Manifolds
+-- PRISMA: Pattern Recognition in Semantic Manifold Analysis
 -- Observer-Coupling Pathologies: interpretation operator breakdown detection
 -- File: 05_observer_coupling_pathologies.sql
--- Updated: 2025-07-01
+-- Updated: 2025-08-04
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
@@ -15,7 +15,7 @@
 
 -- Paranoid Interpretation
 -- Signature: Ĉ_ψ(q,t) << C(q,t), ∀q ∈ Q
-CREATE OR REPLACE FUNCTION prism.detect_paranoid_interpretation(
+CREATE OR REPLACE FUNCTION prisma.detect_paranoid_interpretation(
     point_id UUID,
     bias_threshold FLOAT DEFAULT 0.3,
     threat_hyperattractor_threshold FLOAT DEFAULT 0.8
@@ -42,7 +42,7 @@ DECLARE
 BEGIN
     SELECT coherence_field, semantic_mass, user_fingerprint
     INTO current_coherence, semantic_mass, user_fingerprint
-    FROM prism.manifold_points WHERE id = point_id;
+    FROM prisma.manifold_points WHERE id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -51,8 +51,8 @@ BEGIN
     FOR rec IN (
         SELECT mp.coherence_field, mp.semantic_mass, mp.creation_timestamp,
                rc.coupling_magnitude
-        FROM prism.manifold_points mp
-        LEFT JOIN prism.recursive_coupling rc ON mp.id = rc.point_p
+        FROM prisma.manifold_points mp
+        LEFT JOIN prisma.recursive_coupling rc ON mp.id = rc.point_p
         WHERE mp.user_fingerprint = detect_paranoid_interpretation.user_fingerprint
         AND mp.creation_timestamp >= NOW() - INTERVAL '12 hours'
         ORDER BY mp.creation_timestamp DESC
@@ -98,7 +98,7 @@ $$;
 
 -- Observer Solipsism
 -- Signature: ||I_ψ[C] - C|| > τ||C||
-CREATE OR REPLACE FUNCTION prism.detect_observer_solipsism(
+CREATE OR REPLACE FUNCTION prisma.detect_observer_solipsism(
     point_id UUID,
     divergence_threshold FLOAT DEFAULT 0.5,
     time_window INTERVAL DEFAULT '8 hours'
@@ -125,7 +125,7 @@ DECLARE
 BEGIN
     SELECT coherence_field, user_fingerprint
     INTO current_coherence, user_fingerprint
-    FROM prism.manifold_points WHERE id = point_id;
+    FROM prisma.manifold_points WHERE id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -135,7 +135,7 @@ BEGIN
                                 FROM generate_series(1, LEAST(100, 2000)) i)));
     
     SELECT AVG(mp.coherence_field) INTO baseline_coherence
-    FROM prism.manifold_points mp
+    FROM prisma.manifold_points mp
     WHERE mp.user_fingerprint != detect_observer_solipsism.user_fingerprint
     AND mp.creation_timestamp >= NOW() - time_window;
     
@@ -144,7 +144,7 @@ BEGIN
     END IF;
     FOR rec IN (
         SELECT mp.coherence_field, mp.creation_timestamp
-        FROM prism.manifold_points mp
+        FROM prisma.manifold_points mp
         WHERE mp.user_fingerprint = detect_observer_solipsism.user_fingerprint
         AND mp.creation_timestamp >= NOW() - time_window
         ORDER BY mp.creation_timestamp DESC
@@ -184,7 +184,7 @@ $$;
 
 -- Semantic Narcissism
 -- Signature: ||R_ijk(p,p,t)||/∫||R_ijk(p,q,t)||dq → 1
-CREATE OR REPLACE FUNCTION prism.detect_semantic_narcissism(
+CREATE OR REPLACE FUNCTION prisma.detect_semantic_narcissism(
     point_id UUID,
     self_coupling_threshold FLOAT DEFAULT 0.8,
     external_reference_threshold FLOAT DEFAULT 0.2
@@ -210,7 +210,7 @@ DECLARE
 BEGIN
     SELECT user_fingerprint
     INTO user_fingerprint
-    FROM prism.manifold_points WHERE id = point_id;
+    FROM prisma.manifold_points WHERE id = point_id;
     
     IF user_fingerprint IS NULL THEN
         RETURN;
@@ -220,9 +220,9 @@ BEGIN
         SELECT rc.coupling_magnitude, 
                mp1.user_fingerprint as source_user,
                mp2.user_fingerprint as target_user
-        FROM prism.recursive_coupling rc
-        JOIN prism.manifold_points mp1 ON mp1.id = rc.point_p
-        JOIN prism.manifold_points mp2 ON mp2.id = rc.point_q
+        FROM prisma.recursive_coupling rc
+        JOIN prisma.manifold_points mp1 ON mp1.id = rc.point_p
+        JOIN prisma.manifold_points mp2 ON mp2.id = rc.point_q
         WHERE mp1.user_fingerprint = detect_semantic_narcissism.user_fingerprint
         AND rc.computed_at >= NOW() - INTERVAL '24 hours'
     ) LOOP
@@ -261,7 +261,7 @@ END;
 $$;
 
 -- Combined observer-coupling model
-CREATE OR REPLACE FUNCTION prism.detect_observer_coupling_pathologies(
+CREATE OR REPLACE FUNCTION prisma.detect_observer_coupling_pathologies(
     point_id UUID
 ) RETURNS TABLE(
     pathology_type TEXT,
@@ -270,9 +270,9 @@ CREATE OR REPLACE FUNCTION prism.detect_observer_coupling_pathologies(
     mathematical_evidence TEXT
 ) LANGUAGE plpgsql AS $$
 BEGIN
-    RETURN QUERY SELECT * FROM prism.detect_paranoid_interpretation(point_id);
-    RETURN QUERY SELECT * FROM prism.detect_observer_solipsism(point_id);
-    RETURN QUERY SELECT * FROM prism.detect_semantic_narcissism(point_id);
+    RETURN QUERY SELECT * FROM prisma.detect_paranoid_interpretation(point_id);
+    RETURN QUERY SELECT * FROM prisma.detect_observer_solipsism(point_id);
+    RETURN QUERY SELECT * FROM prisma.detect_semantic_narcissism(point_id);
     RETURN;
 END;
 $$;  

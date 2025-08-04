@@ -1,4 +1,4 @@
-# PRISM: Pathology Recognition In Semantic Manifolds
+# PRISMA: Pattern Recognition in Semantic Manifold Analysis
 
 [![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Uses](https://img.shields.io/badge/uses-PostgreSQL%2015%2B-darkgreen.svg)](https://github.com/pgvector/pgvector)
 
@@ -18,7 +18,7 @@ Loaded sentence incoming:
 
 ## Overview
 
-PRISM monitors information dynamics in vector databases to identify breakdown patterns and pathologies in communication data before they reach critical thresholds. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
+PRISMA monitors information dynamics in vector databases to identify breakdown patterns and pathologies in communication data before they reach critical thresholds. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
 
 **The system detects and forecasts these structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
 
@@ -102,7 +102,7 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
 ## Applications
 
 ### For Investigators & Analysts
-Legacy investigative tools retroactively analyze *what* happened. PRISM <u>proactively</u> analyzes *how* information structures are changing *before breakdowns occur*. While preserving privacy, it:
+Legacy investigative tools retroactively analyze *what* happened. PRISMA <u>proactively</u> analyzes *how* information structures are changing *before breakdowns occur*. While preserving privacy, it:
 
 - Detects threat patterns by analyzing recursive coupling between information sources
 - Measures escalation trajectories using coherence field acceleration and semantic curvature  
@@ -110,7 +110,7 @@ Legacy investigative tools retroactively analyze *what* happened. PRISM <u>proac
 - Generates early warnings with real-time pathology severity scoring and mathematical evidence for each detection
 
 ### For Organizations
-At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit highly predictable geometric dynamics in their vector representations. And they do that *ahead of time*. PRISM leverages this to:
+At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit highly predictable geometric dynamics in their vector representations. And they do that *ahead of time*. PRISMA leverages this to:
 
 - Monitor communication patterns using field-theoretic signatures ***while preserving content privacy***
 - Assess structural rigidity and adaptive capacity in information processing systems
@@ -147,39 +147,39 @@ Seven schema modules provide pathology detection capabilities:
 ### Primary Detection Interface
 ```sql
 -- Comprehensive pathology analysis
-SELECT * FROM prism.detect_all_pathologies(point_id);
+SELECT * FROM prisma.detect_all_pathologies(point_id);
 
 -- Category-specific detection
-SELECT * FROM prism.detect_rigidity_pathologies(point_id);
-SELECT * FROM prism.detect_fragmentation_pathologies(point_id);
-SELECT * FROM prism.detect_inflation_pathologies(point_id);
-SELECT * FROM prism.detect_observer_coupling_pathologies(point_id);
+SELECT * FROM prisma.detect_rigidity_pathologies(point_id);
+SELECT * FROM prisma.detect_fragmentation_pathologies(point_id);
+SELECT * FROM prisma.detect_inflation_pathologies(point_id);
+SELECT * FROM prisma.detect_observer_coupling_pathologies(point_id);
 ```
 
 ### Investigative Analysis
 ```sql
 -- Detect coordination patterns
-SELECT * FROM prism.detect_coordination_via_coupling(
+SELECT * FROM prisma.detect_coordination_via_coupling(
     time_window => '24 hours',
     coupling_threshold => 0.8,
     min_cluster_size => 3
 );
 
 -- Predict escalation trajectories  
-SELECT * FROM prism.detect_escalation_via_field_evolution(conversation_points);
+SELECT * FROM prisma.detect_escalation_via_field_evolution(conversation_points);
 ```
 
 ### Field Evolution Simulation
 ```sql
 -- Simulate coherence field evolution
-SELECT prism.evolve_coherence_field_complete(point_id, dt => 0.01);
+SELECT prisma.evolve_coherence_field_complete(point_id, dt => 0.01);
 ```
 
 ### Real-Time Monitoring
 ```sql
 -- High-priority alerts
-SELECT * FROM prism.coordination_alerts WHERE priority = 'HIGH';
-SELECT * FROM prism.pathology_alerts WHERE severity > 0.6;
+SELECT * FROM prisma.coordination_alerts WHERE priority = 'HIGH';
+SELECT * FROM prisma.pathology_alerts WHERE severity > 0.6;
 ```
 
 ## Technical Architecture
