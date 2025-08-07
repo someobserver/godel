@@ -2,7 +2,7 @@
 
 [![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Uses](https://img.shields.io/badge/uses-PostgreSQL%2015%2B-darkgreen.svg)](https://github.com/pgvector/pgvector)
 
-*GODEL is a geometric field analytics engine for pattern recognition and emergent logic detection in information environments.*
+*GODEL is a geometric field analytics engine for pattern recognition and emergent logic detection in information environments. It does so without ever seeing any raw data.*
 
 ## Table of Contents
 
@@ -44,6 +44,35 @@ Their downstream effects threaten organizations and teams at any scale. Detectin
 - Identifies threshold approaches via geometric signature trend analysis
 - Ranks intervention urgency using time-sensitive severity scoring algorithms
 - Maps system transitions through field evolution simulation and stability analysis
+
+## Applications
+
+### For Investigators & Analysts
+
+Before breakdowns occur...  
+Without ever seeing the content...  
+GODEL <u>proactively</u> measures how information structures are changing. It:
+
+- Detects threat patterns solely by analyzing recursive coupling between information sources
+- Measures escalation trajectories using coherence field acceleration and Ricci curvature  
+- Quantifies coordination signatures via semantic mass concentration and interpretive breakdown metrics
+- Generates early warnings with real-time geometric severity scoring and mathematical evidence for each detection
+
+### For Cybersecurity & UEBA
+Extending User and Entity Behavior Analytics, GODEL:
+
+- Maps user behavior via recursive coupling tensors and semantic mass distribution
+- Identifies insider threats through extractive behavior and coordination pattern recognition
+- Detects account compromise via high-dimensional signature changes in field evolution
+- Uncovers coordinated attacks through network-level coupling analysis and field coordination metrics
+
+### For Organizations
+At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit predictable topological dynamics in their vector representations. And they do that *ahead of time*. GODEL leverages this to:
+
+- Monitor communication patterns using field-theoretic signatures ***while preserving content privacy***
+- Assess structural rigidity and adaptive capacity in information processing systems
+- Track communication health via coherence field analysis and coupling strength measurements
+- Support decision-making with quantified vulnerability assessments and trend analysis
 
 ### Geometric Detection Engine
 Algorithmically detects 12 coherence breakdown signatures with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection in the following categories:
@@ -103,35 +132,6 @@ Algorithmically detects 12 coherence breakdown signatures with real-time severit
   - Signature: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`  
 
 ---
-
-## Applications
-
-### For Investigators & Analysts
-
-Before breakdowns occur...  
-Without ever seeing the content...  
-GODEL <u>proactively</u> measures how information structures are changing. It:
-
-- Detects threat patterns solely by analyzing recursive coupling between information sources
-- Measures escalation trajectories using coherence field acceleration and Ricci curvature  
-- Quantifies coordination signatures via semantic mass concentration and interpretive breakdown metrics
-- Generates early warnings with real-time geometric severity scoring and mathematical evidence for each detection
-
-### For Cybersecurity & UEBA
-Extending User and Entity Behavior Analytics, GODEL:
-
-- Maps user behavior via recursive coupling tensors and semantic mass distribution
-- Identifies insider threats through extractive behavior and coordination pattern recognition
-- Detects account compromise via high-dimensional signature changes in field evolution
-- Uncovers coordinated attacks through network-level coupling analysis and field coordination metrics
-
-### For Organizations
-At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit predictable topological dynamics in their vector representations. And they do that *ahead of time*. GODEL leverages this to:
-
-- Monitor communication patterns using field-theoretic signatures ***while preserving content privacy***
-- Assess structural rigidity and adaptive capacity in information processing systems
-- Track communication health via coherence field analysis and coupling strength measurements
-- Support decision-making with quantified vulnerability assessments and trend analysis
 
 ## Installation
 
