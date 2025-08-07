@@ -19,7 +19,7 @@
 
 ## Overview
 
-GODEL ("goh-delle") augments any SOC stack with real-time field analysis of information environments. Full stop.
+GODEL ("guh-*delle*") augments any SOC stack with real-time field analysis of information environments. Full stop.
 
 It identifies the *geometric signatures* of coordinated, manipulative, failing, or otherwise anomalous information dynamics across multiple time scales. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
 
