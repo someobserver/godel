@@ -19,11 +19,13 @@
 
 ## Overview
 
-GODEL augments any SOC stack with real-time field analysis of information environments. It identifies *geometric signatures* of coordinated, manipulative, failing, or otherwise anomalous information dynamics across multiple time scales. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
+GODEL augments any SOC stack with real-time field analysis of information environments. Full stop.
 
-**This detects and forecasts structural vulnerabilities in information dynamics before traditional systems can recognize their presence.**
+It identifies the *geometric signatures* of coordinated, manipulative, failing, or otherwise anomalous information dynamics across multiple time scales. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
 
-The system identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. The signatures emerge consistently: in cognition during psychological crises, in cultural dynamics during social upheaval, in institutional behavior under organizational stress, and in all information environments under strain.
+**This can detect and forecast those structural vulnerabilities in information flows before traditional systems recognize their presence.**
+
+The GODEL engine identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. The signatures emerge consistently: in cognition during psychological crises, in cultural dynamics during social upheaval, in institutional behavior under organizational stress, and in all information environments under strain.
 
 Their downstream effects threaten organizations and teams at any scale. Detecting and predicting them early is a matter of using the same mathematics governing coherence and entropy in all complex systems.
 
