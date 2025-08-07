@@ -74,7 +74,7 @@ At all scales, communication systems under stress, duress, dogmatism, delusion, 
 - Track communication health via coherence field analysis and coupling strength measurements
 - Support decision-making with quantified vulnerability assessments and trend analysis
 
-### Geometric Detection Engine
+## Geometric Detection Engine
 Algorithmically detects 12 coherence breakdown signatures with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection in the following categories:
 
 #### <span style="color: #EA503F">Rigidity Signatures</span> *(Over-constraint → brittleness)*
