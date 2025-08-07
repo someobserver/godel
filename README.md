@@ -27,7 +27,7 @@ It identifies the *geometric signatures* of coordinated, manipulative, failing, 
 
 The GODEL engine identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. The signatures emerge consistently: in cognition during psychological crises, in cultural dynamics during social upheaval, in institutional behavior under organizational stress, and in all information environments under strain.
 
-Their downstream effects threaten organizations and teams at any scale. Detecting and predicting them early is a matter of using the same mathematics governing coherence and entropy in all complex systems.
+Their downstream effects threaten organizations and teams at every scale. Predicting and detecting them early is a matter of using the same mathematics governing coherence and entropy in all complex systems.
 
 ## Capabilities
 
