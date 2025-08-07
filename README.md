@@ -203,12 +203,12 @@ SELECT * FROM godel.geometric_alerts WHERE severity > 0.6;
 ### Database Schema
 - Stores semantic/coherence field vectors with geometric properties
 - Maintains inter-point relationship tensors and regulatory values
-- Specialized indices for vector similarity and temporal analysis
+- Provides specialized indices for vector similarity and temporal analysis
 
 ### Performance Optimization
-- HNSW indices for semantic and coherence field vectors
-- Composite indices for temporal-semantic queries
-- Configurable severity thresholds for alert tuning
+- HNSW indices: semantic and coherence field vectors
+- Composite indices: temporal-semantic queries
+- Configurable severity thresholds: alert tuning
 
 ### Computational Methodology
 - Supports 2000D embeddings in primary storage
