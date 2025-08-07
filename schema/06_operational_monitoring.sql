@@ -1,7 +1,7 @@
--- PRISMA: Pattern Recognition in Semantic Manifold Analysis
+-- GODEL: Geometric Ontology Detecting Emergent Logics
 -- Operational Monitoring: real-time coordination detection, escalation prediction, and field evolution
 -- File: 06_operational_monitoring.sql
--- Updated: 2025-08-04
+-- Updated: 2025-08-07
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
@@ -16,7 +16,7 @@
 
 -- Coordination detection
 -- Geometric coupling analysis for suspicious interaction clusters
-CREATE OR REPLACE FUNCTION prisma.detect_coordination_via_coupling(
+CREATE OR REPLACE FUNCTION godel.detect_coordination_via_coupling(
     time_window INTERVAL DEFAULT '24 hours',
     coupling_threshold FLOAT DEFAULT 0.8,
     min_cluster_size INTEGER DEFAULT 3
@@ -48,9 +48,9 @@ CREATE OR REPLACE FUNCTION prisma.detect_coordination_via_coupling(
                      sqrt(mp1.metric_determinant * mp2.metric_determinant)
                 ELSE 1.0 - (mp1.coherence_field <-> mp2.coherence_field)
             END as geometric_coherence
-        FROM prisma.manifold_points mp1
-        JOIN prisma.recursive_coupling rc ON mp1.id = rc.point_p
-        JOIN prisma.manifold_points mp2 ON mp2.id = rc.point_q
+        FROM godel.manifold_points mp1
+        JOIN godel.recursive_coupling rc ON mp1.id = rc.point_p
+        JOIN godel.manifold_points mp2 ON mp2.id = rc.point_q
         WHERE 
             mp1.creation_timestamp >= NOW() - time_window
             AND mp2.creation_timestamp >= NOW() - time_window
@@ -82,7 +82,7 @@ $$;
 
 -- Escalation detection
 -- Trajectory analysis via coherence acceleration and curvature
-CREATE OR REPLACE FUNCTION prisma.detect_escalation_via_field_evolution(
+CREATE OR REPLACE FUNCTION godel.detect_escalation_via_field_evolution(
     conversation_points UUID[]
 ) RETURNS TABLE (
     point_id UUID,
@@ -99,7 +99,7 @@ DECLARE
     coherence_accel FLOAT;
 BEGIN
     FOR point_rec IN 
-        SELECT * FROM prisma.manifold_points 
+        SELECT * FROM godel.manifold_points 
         WHERE id = ANY(conversation_points)
         ORDER BY creation_timestamp
     LOOP
@@ -124,7 +124,7 @@ BEGIN
                 -- Intervention priority
                 CASE 
                     WHEN coherence_accel > 0.3 AND EXISTS(
-                        SELECT 1 FROM prisma.wisdom_field wf 
+                        SELECT 1 FROM godel.wisdom_field wf 
                         WHERE wf.point_id = point_rec.id 
                         AND wf.humility_factor < 0.3
                     )
@@ -141,7 +141,7 @@ $$;
 
 -- Coherence field evolution
 -- Geometric field dynamics with constraint curvature and regulatory forces
-CREATE OR REPLACE FUNCTION prisma.evolve_coherence_field_complete(
+CREATE OR REPLACE FUNCTION godel.evolve_coherence_field_complete(
     point_id UUID,
     dt FLOAT DEFAULT 0.01
 ) RETURNS VECTOR(2000) LANGUAGE plpgsql AS $$
@@ -172,14 +172,14 @@ DECLARE
 BEGIN
     SELECT coherence_field, metric_tensor, christoffel_symbols, semantic_mass
     INTO current_coherence, metric_tensor, christoffel_symbols, semantic_mass
-    FROM prisma.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points WHERE id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
     END IF;
     
     -- Compute metric inverse
-    metric_inverse := prisma.compute_metric_inverse(metric_tensor, dim);
+    metric_inverse := godel.compute_metric_inverse(metric_tensor, dim);
     
     -- Compute coherence magnitude
     coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) FROM generate_series(1, LEAST(dim, 2000)) i)));
@@ -260,27 +260,27 @@ BEGIN
 END;
 $$;
 
--- Comprehensive pathology detection
-CREATE OR REPLACE FUNCTION prisma.detect_all_pathologies(
+-- Comprehensive geometric detection
+CREATE OR REPLACE FUNCTION godel.detect_all_signatures(
     point_id UUID
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
 ) LANGUAGE plpgsql AS $$
 BEGIN
-    RETURN QUERY SELECT * FROM prisma.detect_rigidity_pathologies(point_id);
-    RETURN QUERY SELECT * FROM prisma.detect_fragmentation_pathologies(point_id);
-    RETURN QUERY SELECT * FROM prisma.detect_inflation_pathologies(point_id);
-    RETURN QUERY SELECT * FROM prisma.detect_observer_coupling_pathologies(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_rigidity_signatures(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_fragmentation_signatures(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_inflation_signatures(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_observer_coupling_signatures(point_id);
     RETURN;
 END;
 $$;
 
 -- Operational monitoring views
 
-CREATE VIEW prisma.coordination_alerts AS
+CREATE VIEW godel.coordination_alerts AS
 SELECT 
     cluster_id,
     cluster_size,
@@ -294,48 +294,48 @@ SELECT
         WHEN rft_coordination_confidence > 0.6 THEN 'MEDIUM'
         ELSE 'LOW'
     END as priority
-FROM prisma.detect_coordination_via_coupling()
+FROM godel.detect_coordination_via_coupling()
 WHERE rft_coordination_confidence > 0.5;
 
-CREATE VIEW prisma.pathology_alerts AS
+CREATE VIEW godel.geometric_alerts AS
 SELECT 
     mp.id as point_id,
     mp.user_fingerprint,
     mp.creation_timestamp,
     mp.semantic_mass,
-    pathology.pathology_type,
-    pathology.severity,
-    pathology.mathematical_evidence,
+    signature.signature_type,
+    signature.severity,
+    signature.mathematical_evidence,
     CASE 
-        WHEN pathology.severity > 0.8 THEN 'CRITICAL'
-        WHEN pathology.severity > 0.6 THEN 'HIGH'
-        WHEN pathology.severity > 0.4 THEN 'MEDIUM'
+        WHEN signature.severity > 0.8 THEN 'CRITICAL'
+        WHEN signature.severity > 0.6 THEN 'HIGH'
+        WHEN signature.severity > 0.4 THEN 'MEDIUM'
         ELSE 'LOW'
     END as priority
-FROM prisma.manifold_points mp
-CROSS JOIN LATERAL prisma.detect_all_pathologies(mp.id) as pathology
-WHERE pathology.severity > 0.3
-ORDER BY pathology.severity DESC, mp.creation_timestamp DESC;
+FROM godel.manifold_points mp
+CROSS JOIN LATERAL godel.detect_all_signatures(mp.id) as signature
+WHERE signature.severity > 0.3
+ORDER BY signature.severity DESC, mp.creation_timestamp DESC;
 
 -- Performance optimization indices
 
 CREATE INDEX IF NOT EXISTS idx_manifold_points_semantic_field
-    ON prisma.manifold_points USING hnsw (semantic_field vector_cosine_ops);
+    ON godel.manifold_points USING hnsw (semantic_field vector_cosine_ops);
 
 CREATE INDEX IF NOT EXISTS idx_manifold_points_coherence_field
-    ON prisma.manifold_points USING hnsw (coherence_field vector_cosine_ops);
+    ON godel.manifold_points USING hnsw (coherence_field vector_cosine_ops);
 
 CREATE INDEX IF NOT EXISTS idx_manifold_points_semantic_mass
-    ON prisma.manifold_points(semantic_mass, creation_timestamp);
+    ON godel.manifold_points(semantic_mass, creation_timestamp);
 
 CREATE INDEX IF NOT EXISTS idx_manifold_points_user_timestamp
-    ON prisma.manifold_points(user_fingerprint, creation_timestamp);
+    ON godel.manifold_points(user_fingerprint, creation_timestamp);
 
 CREATE INDEX IF NOT EXISTS idx_recursive_coupling_magnitude
-    ON prisma.recursive_coupling(coupling_magnitude, computed_at);
+    ON godel.recursive_coupling(coupling_magnitude, computed_at);
 
 CREATE INDEX IF NOT EXISTS idx_recursive_coupling_points
-    ON prisma.recursive_coupling(point_p, point_q, computed_at);
+    ON godel.recursive_coupling(point_p, point_q, computed_at);
 
 CREATE INDEX IF NOT EXISTS idx_wisdom_field_values
-    ON prisma.wisdom_field(wisdom_value, humility_factor); 
+    ON godel.wisdom_field(wisdom_value, humility_factor); 

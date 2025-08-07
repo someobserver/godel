@@ -1,7 +1,7 @@
--- PRISMA: Pattern Recognition in Semantic Manifold Analysis
+-- GODEL: Geometric Ontology Detecting Emergent Logics
 -- Foundation: schema definitions and base tables
 -- File: 00_foundation.sql
--- Updated: 2025-08-04
+-- Updated: 2025-08-07
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
@@ -16,12 +16,12 @@
 -- PostgreSQL extensions
 CREATE EXTENSION IF NOT EXISTS vector;
 
-CREATE SCHEMA IF NOT EXISTS prisma;
+CREATE SCHEMA IF NOT EXISTS godel;
 
 -- Main tables
 
 -- Semantic manifold points
-CREATE TABLE prisma.manifold_points (
+CREATE TABLE godel.manifold_points (
     id UUID PRIMARY KEY,
     conversation_id UUID,
     user_fingerprint TEXT,
@@ -51,10 +51,10 @@ CREATE TABLE prisma.manifold_points (
 );
 
 -- Recursive coupling analysis
-CREATE TABLE prisma.recursive_coupling (
+CREATE TABLE godel.recursive_coupling (
     id UUID PRIMARY KEY,
-    point_p UUID NOT NULL REFERENCES prisma.manifold_points(id),
-    point_q UUID NOT NULL REFERENCES prisma.manifold_points(id),
+    point_p UUID NOT NULL REFERENCES godel.manifold_points(id),
+    point_q UUID NOT NULL REFERENCES godel.manifold_points(id),
     
     -- Coupling tensors
     coupling_tensor FLOAT[],
@@ -72,8 +72,8 @@ CREATE TABLE prisma.recursive_coupling (
 );
 
 -- Wisdom field regulatory mechanisms
-CREATE TABLE prisma.wisdom_field (
-    point_id UUID PRIMARY KEY REFERENCES prisma.manifold_points(id),
+CREATE TABLE godel.wisdom_field (
+    point_id UUID PRIMARY KEY REFERENCES godel.manifold_points(id),
 
     -- Regulation metrics
     wisdom_value FLOAT,
@@ -90,7 +90,7 @@ CREATE TABLE prisma.wisdom_field (
 -- Utility functions
 
 -- Semantic Mass: M(p,t) = D(p,t) * ρ(p,t) * A(p,t)
-CREATE OR REPLACE FUNCTION prisma.compute_semantic_mass(
+CREATE OR REPLACE FUNCTION godel.compute_semantic_mass(
     recursive_depth FLOAT,
     metric_determinant FLOAT,
     attractor_stability FLOAT
@@ -102,7 +102,7 @@ CREATE OR REPLACE FUNCTION prisma.compute_semantic_mass(
 $$;
 
 -- Autopoietic Function: Φ(C) = α(C_mag - C_threshold)^β for C >= threshold
-CREATE OR REPLACE FUNCTION prisma.compute_autopoietic_potential(
+CREATE OR REPLACE FUNCTION godel.compute_autopoietic_potential(
     coherence_magnitude FLOAT,
     coherence_threshold FLOAT DEFAULT 0.7,
     alpha FLOAT DEFAULT 1.0,
@@ -117,7 +117,7 @@ CREATE OR REPLACE FUNCTION prisma.compute_autopoietic_potential(
 $$;
 
 -- Humility Operator: H[R] = |R|_F * exp(-k(|R|_F - R_optimal))
-CREATE OR REPLACE FUNCTION prisma.compute_humility_operator(
+CREATE OR REPLACE FUNCTION godel.compute_humility_operator(
     coupling_magnitude FLOAT,
     optimal_recursion FLOAT DEFAULT 0.5,
     decay_constant FLOAT DEFAULT 2.0

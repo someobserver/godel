@@ -1,7 +1,7 @@
--- PRISMA: Pattern Recognition in Semantic Manifold Analysis
--- Rigidity Pathologies: over-constraint detection
--- File: 02_rigidity_pathologies.sql
--- Updated: 2025-08-04
+-- GODEL: Geometric Ontology Detecting Emergent Logics
+-- Rigidity Signatures: over-constraint detection
+-- File: 02_rigidity_signatures.sql
+-- Updated: 2025-08-07
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
@@ -15,12 +15,12 @@
 
 -- Attractor Dogmatism
 -- Signature: A(p,t) > A_crit AND ||∇V(C)|| >> Φ(C)
-CREATE OR REPLACE FUNCTION prisma.detect_attractor_dogmatism(
+CREATE OR REPLACE FUNCTION godel.detect_attractor_dogmatism(
     point_id UUID,
     attractor_threshold FLOAT DEFAULT 0.8,
     force_ratio_threshold FLOAT DEFAULT 3.0
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
@@ -37,7 +37,7 @@ DECLARE
 BEGIN
     SELECT coherence_field, semantic_mass, attractor_stability
     INTO current_coherence, semantic_mass, attractor_stability
-    FROM prisma.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points WHERE id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -47,7 +47,7 @@ BEGIN
                               FROM generate_series(1, LEAST(100, 2000)) i)));
     
     IF attractor_stability > attractor_threshold AND coherence_mag > 0.7 THEN
-        autopoietic_potential := prisma.compute_autopoietic_potential(
+        autopoietic_potential := godel.compute_autopoietic_potential(
             coherence_mag, 0.7, 2.0, 2.0
         );
         
@@ -75,12 +75,12 @@ $$;
 
 -- Belief Calcification
 -- Signature: lim(ε→0) dC/dt|C+ε ≈ 0
-CREATE OR REPLACE FUNCTION prisma.detect_belief_calcification(
+CREATE OR REPLACE FUNCTION godel.detect_belief_calcification(
     point_id UUID,
     responsiveness_threshold FLOAT DEFAULT 0.01,
     time_window INTERVAL DEFAULT '6 hours'
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
@@ -99,10 +99,10 @@ DECLARE
 BEGIN
     SELECT coherence_field, semantic_mass
     INTO current_coherence, semantic_mass
-    FROM prisma.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points WHERE id = point_id;
     
     SELECT wisdom_value INTO wisdom_value
-    FROM prisma.wisdom_field
+    FROM godel.wisdom_field
     WHERE point_id = detect_belief_calcification.point_id
     ORDER BY computed_at DESC LIMIT 1;
     
@@ -111,9 +111,9 @@ BEGIN
     END IF;
     FOR rec IN (
         SELECT mp.coherence_field, mp.creation_timestamp, mp.semantic_mass
-        FROM prisma.manifold_points mp
+        FROM godel.manifold_points mp
         WHERE mp.conversation_id = (
-            SELECT conversation_id FROM prisma.manifold_points WHERE id = point_id
+            SELECT conversation_id FROM godel.manifold_points WHERE id = point_id
         )
         AND mp.creation_timestamp >= NOW() - time_window
         ORDER BY mp.creation_timestamp
@@ -150,12 +150,12 @@ $$;
 
 -- Metric Crystallization
 -- Signature: ∂g_ij/∂t → 0 while R_ij ≠ 0
-CREATE OR REPLACE FUNCTION prisma.detect_metric_crystallization(
+CREATE OR REPLACE FUNCTION godel.detect_metric_crystallization(
     point_id UUID,
     evolution_threshold FLOAT DEFAULT 0.01,
     curvature_threshold FLOAT DEFAULT 0.1
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
@@ -173,7 +173,7 @@ DECLARE
 BEGIN
     SELECT metric_tensor, ricci_curvature, semantic_mass
     INTO current_metric, ricci_curvature, semantic_mass
-    FROM prisma.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points WHERE id = point_id;
     
     IF current_metric IS NULL THEN
         RETURN;
@@ -205,18 +205,18 @@ END;
 $$;
 
 -- Combined rigidity model
-CREATE OR REPLACE FUNCTION prisma.detect_rigidity_pathologies(
+CREATE OR REPLACE FUNCTION godel.detect_rigidity_signatures(
     point_id UUID
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
 ) LANGUAGE plpgsql AS $$
 BEGIN
-    RETURN QUERY SELECT * FROM prisma.detect_attractor_dogmatism(point_id);
-    RETURN QUERY SELECT * FROM prisma.detect_belief_calcification(point_id);
-    RETURN QUERY SELECT * FROM prisma.detect_metric_crystallization(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_attractor_dogmatism(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_belief_calcification(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_metric_crystallization(point_id);
     RETURN;
 END;
 $$;

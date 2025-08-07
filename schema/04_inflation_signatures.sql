@@ -1,7 +1,7 @@
--- PRISMA: Pattern Recognition in Semantic Manifold Analysis
--- Inflation Pathologies: runaway autopoiesis detection
--- File: 04_inflation_pathologies.sql
--- Updated: 2025-08-04
+-- GODEL: Geometric Ontology Detecting Emergent Logics
+-- Inflation Signatures: runaway autopoiesis detection
+-- File: 04_inflation_signatures.sql
+-- Updated: 2025-08-07
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
@@ -15,13 +15,13 @@
 
 -- Delusional Expansion
 -- Signature: Φ(C) >> V(C), H[R] ≈ 0, W(p,t) < W_min
-CREATE OR REPLACE FUNCTION prisma.detect_delusional_expansion(
+CREATE OR REPLACE FUNCTION godel.detect_delusional_expansion(
     point_id UUID,
     autopoietic_threshold FLOAT DEFAULT 5.0,
     humility_threshold FLOAT DEFAULT 0.1,
     wisdom_threshold FLOAT DEFAULT 0.2
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
@@ -40,11 +40,11 @@ DECLARE
 BEGIN
     SELECT coherence_field, semantic_mass
     INTO current_coherence, semantic_mass
-    FROM prisma.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points WHERE id = point_id;
     
     SELECT wisdom_value, humility_factor
     INTO wisdom_value, humility_factor
-    FROM prisma.wisdom_field
+    FROM godel.wisdom_field
     WHERE point_id = detect_delusional_expansion.point_id
     ORDER BY computed_at DESC LIMIT 1;
     
@@ -55,7 +55,7 @@ BEGIN
     coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) 
                               FROM generate_series(1, LEAST(100, 2000)) i)));
     
-    autopoietic_potential := prisma.compute_autopoietic_potential(coherence_mag);
+    autopoietic_potential := godel.compute_autopoietic_potential(coherence_mag);
     
     constraining_force := abs(coherence_mag - 0.7) * 0.5;
     IF autopoietic_potential > 0 AND 
@@ -82,13 +82,13 @@ $$;
 
 -- Semantic Hypercoherence
 -- Signature: C(p,t) > C_max, ∮F_i·dS^i < F_leakage
-CREATE OR REPLACE FUNCTION prisma.detect_semantic_hypercoherence(
+CREATE OR REPLACE FUNCTION godel.detect_semantic_hypercoherence(
     point_id UUID,
     coherence_max_threshold FLOAT DEFAULT 0.95,
     leakage_threshold FLOAT DEFAULT 0.1,
     time_window INTERVAL DEFAULT '4 hours'
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
@@ -107,7 +107,7 @@ DECLARE
 BEGIN
     SELECT coherence_field, semantic_mass
     INTO current_coherence, semantic_mass
-    FROM prisma.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points WHERE id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -119,8 +119,8 @@ BEGIN
     IF coherence_mag > coherence_max_threshold THEN
         FOR rec IN (
             SELECT rc.coupling_magnitude, mp2.semantic_mass as external_mass
-            FROM prisma.recursive_coupling rc
-            JOIN prisma.manifold_points mp2 ON mp2.id = rc.point_q
+            FROM godel.recursive_coupling rc
+            JOIN godel.manifold_points mp2 ON mp2.id = rc.point_q
             WHERE rc.point_p = point_id
             AND rc.computed_at >= NOW() - time_window
         ) LOOP
@@ -155,13 +155,13 @@ $$;
 
 -- Recurgent Parasitism
 -- Signature: d/dt∫_Ω M(p,t) dV > 0, d/dt∫_{M\Ω} M(p,t) dV < 0
-CREATE OR REPLACE FUNCTION prisma.detect_recurgent_parasitism(
+CREATE OR REPLACE FUNCTION godel.detect_recurgent_parasitism(
     point_id UUID,
     growth_threshold FLOAT DEFAULT 0.5,
     ecological_drain_threshold FLOAT DEFAULT -0.2,
     time_window INTERVAL DEFAULT '6 hours'
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
@@ -181,14 +181,14 @@ DECLARE
 BEGIN
     SELECT semantic_mass, user_fingerprint
     INTO current_semantic_mass, user_fingerprint
-    FROM prisma.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points WHERE id = point_id;
     
     IF current_semantic_mass IS NULL THEN
         RETURN;
     END IF;
     FOR rec IN (
         SELECT mp.semantic_mass, mp.creation_timestamp
-        FROM prisma.manifold_points mp
+        FROM godel.manifold_points mp
         WHERE mp.user_fingerprint = detect_recurgent_parasitism.user_fingerprint
         AND mp.creation_timestamp >= NOW() - time_window
         ORDER BY mp.creation_timestamp
@@ -203,7 +203,7 @@ BEGIN
     
     FOR rec IN (
         SELECT AVG(mp.semantic_mass) as avg_mass, mp.creation_timestamp
-        FROM prisma.manifold_points mp
+        FROM godel.manifold_points mp
         WHERE mp.user_fingerprint != detect_recurgent_parasitism.user_fingerprint
         AND mp.creation_timestamp >= NOW() - time_window
         GROUP BY mp.creation_timestamp
@@ -240,18 +240,18 @@ END;
 $$;
 
 -- Combined inflation model
-CREATE OR REPLACE FUNCTION prisma.detect_inflation_pathologies(
+CREATE OR REPLACE FUNCTION godel.detect_inflation_signatures(
     point_id UUID
 ) RETURNS TABLE(
-    pathology_type TEXT,
+    signature_type TEXT,
     severity FLOAT,
     geometric_signature FLOAT[],
     mathematical_evidence TEXT
 ) LANGUAGE plpgsql AS $$
 BEGIN
-    RETURN QUERY SELECT * FROM prisma.detect_delusional_expansion(point_id);
-    RETURN QUERY SELECT * FROM prisma.detect_semantic_hypercoherence(point_id);
-    RETURN QUERY SELECT * FROM prisma.detect_recurgent_parasitism(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_delusional_expansion(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_semantic_hypercoherence(point_id);
+    RETURN QUERY SELECT * FROM godel.detect_recurgent_parasitism(point_id);
     RETURN;
 END;
 $$; 
