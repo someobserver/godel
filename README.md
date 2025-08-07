@@ -1,16 +1,17 @@
-# PRISMA: Pattern Recognition in Semantic Manifold Analysis
+# GODEL: Geometric Ontology Detecting Emergent Logics
 
 [![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Uses](https://img.shields.io/badge/uses-PostgreSQL%2015%2B-darkgreen.svg)](https://github.com/pgvector/pgvector)
 
-Loaded sentence incoming:
-
-*A geometric analysis system able to detect structural failures in information environments using differential geometry applied to semantic vector databases (PostgreSQL + pgvector).*
+*GODEL is a geometric field analytics engine for pattern recognition and emergent logic detection in information environments.*
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Capabilities](#capabilities)
 - [Applications](#applications)
+  - [For Investigators & Analysts](#for-investigators--analysts)
+  - [For Cybersecurity & UEBA](#for-cybersecurity--ueba)
+  - [For Organizations](#for-organizations)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Technical Architecture](#technical-architecture)
@@ -18,15 +19,17 @@ Loaded sentence incoming:
 
 ## Overview
 
-PRISMA monitors information dynamics in vector databases to identify breakdown patterns and pathologies in communication data before they reach critical thresholds. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
+GODEL augments any SOC stack with real-time field analysis of information environments. It identifies *geometric signatures* of coordinated, manipulative, failing, or otherwise anomalous information dynamics across multiple time scales. Built on principles of differential geometry applied to semantic embeddings, it models information as a high-dimensional geometric field. Healthy adaptive dynamics in that field break down in quantifiable (and immediately recognizable) ways.
 
-**The system detects and forecasts these structural vulnerabilities in information dynamics before traditional systems can recognize their behavior patterns.**
+**This detects and forecasts structural vulnerabilities in information dynamics before traditional systems can recognize their presence.**
 
-Calculus doesn't care about the intent, only the pattern of a true pathology. The system identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. Their signatures emerge (consistently) in cognition during psychological crises, cultural dynamics undergoing social upheaval, institutional behavior during organizational stress, and information dynamics (unintentional, reckless, malicious, or otherwise).
+The system identifies 12 orthogonal failure modes inherent to all information environments, which can occur simultaneously, across four categories. The signatures emerge consistently: in cognition during psychological crises, in cultural dynamics during social upheaval, in institutional behavior under organizational stress, and in all information environments under strain.
 
-Their downstream effects threaten democracies, organizations, and individuals alike. Detecting and predicting them early is a matter of using the same mathematics governing coherence and entropy in all complex systems.
+Their downstream effects threaten organizations and teams at any scale. Detecting and predicting them early is a matter of using the same mathematics governing coherence and entropy in all complex systems.
 
 ## Capabilities
+
+**Privacy-preserving: GODEL measures fields and vectors, NEVER raw content.**
 
 ### Coordination Analysis
 - Analyzes geometric coupling between information sources using recursive coupling tensors
@@ -40,10 +43,10 @@ Their downstream effects threaten democracies, organizations, and individuals al
 - Ranks intervention urgency using time-sensitive severity scoring algorithms
 - Maps system transitions through field evolution simulation and stability analysis
 
-### Pathology Detection Engine
-Algorithmically detects 12 distinct pathological patterns with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection in the following categories:
+### Geometric Detection Engine
+Algorithmically detects 12 coherence breakdown signatures with real-time severity scoring (0.0-1.0) + mathematical evidence for each detection in the following categories:
 
-#### <span style="color: #EA503F">Rigidity Pathologies</span> *(Over-constraint → brittleness)*
+#### <span style="color: #EA503F">Rigidity Signatures</span> *(Over-constraint → brittleness)*
 
 - **Metric Crystallization**
   - *Interpretive frameworks freeze while tensions persist*
@@ -57,7 +60,7 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
 
 ---
 
-#### <span style="color: #FF9800">Fragmentation Pathologies</span> *(Under-constraint → disintegration)*
+#### <span style="color: #FF9800">Fragmentation Signatures</span> *(Under-constraint → disintegration)*
 
 - **Attractor Splintering**
   - *Attention fragments faster than coherence can stabilize*
@@ -71,7 +74,7 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
 
 ---
 
-#### <span style="color: #9C27B0">Inflation Pathologies</span> *(Runaway Autopoiesis → malignancy)*
+#### <span style="color: #9C27B0">Inflation Signatures</span> *(Runaway Autopoiesis → malignancy)*
 
 - **Recurgent Parasitism**
   - *Local semantic mass grows by directly depleting the broader semantic environment*
@@ -85,7 +88,7 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
 
 ---
 
-#### <span style="color: #1389c4">Observer-Coupling Pathologies</span> *(Interpretation Breakdowns)*
+#### <span style="color: #1389c4">Observer-Coupling Signatures</span> *(Interpretation Breakdowns)*
 
 - **Observer Solipsism**
   - *Subjective interpretation diverges from objective reality*
@@ -102,15 +105,26 @@ Algorithmically detects 12 distinct pathological patterns with real-time severit
 ## Applications
 
 ### For Investigators & Analysts
-Legacy investigative tools retroactively analyze *what* happened. PRISMA <u>proactively</u> analyzes *how* information structures are changing *before breakdowns occur*. While preserving privacy, it:
 
-- Detects threat patterns by analyzing recursive coupling between information sources
-- Measures escalation trajectories using coherence field acceleration and semantic curvature  
-- Quantifies threat signatures via semantic mass concentration and interpretive breakdown metrics
-- Generates early warnings with real-time pathology severity scoring and mathematical evidence for each detection
+Before breakdowns occur...  
+Without ever seeing the content...  
+GODEL <u>proactively</u> measures how information structures are changing. It:
+
+- Detects threat patterns solely by analyzing recursive coupling between information sources
+- Measures escalation trajectories using coherence field acceleration and Ricci curvature  
+- Quantifies coordination signatures via semantic mass concentration and interpretive breakdown metrics
+- Generates early warnings with real-time geometric severity scoring and mathematical evidence for each detection
+
+### For Cybersecurity & UEBA
+Extending User and Entity Behavior Analytics, GODEL:
+
+- Maps user behavior via recursive coupling tensors and semantic mass distribution
+- Identifies insider threats through extractive behavior and coordination pattern recognition
+- Detects account compromise via high-dimensional signature changes in field evolution
+- Uncovers coordinated attacks through network-level coupling analysis and field coordination metrics
 
 ### For Organizations
-At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit highly predictable geometric dynamics in their vector representations. And they do that *ahead of time*. PRISMA leverages this to:
+At all scales, communication systems under stress, duress, dogmatism, delusion, or otherwise exhibit predictable topological dynamics in their vector representations. And they do that *ahead of time*. GODEL leverages this to:
 
 - Monitor communication patterns using field-theoretic signatures ***while preserving content privacy***
 - Assess structural rigidity and adaptive capacity in information processing systems
@@ -133,53 +147,53 @@ At all scales, communication systems under stress, duress, dogmatism, delusion, 
 ```
 
 ### Components
-Seven schema modules provide pathology detection capabilities:
+Seven schema modules provide geometric detection capabilities:
 1. **Foundation**: Geometric structures and field definitions
 2. **Geometric Analysis**: Differential geometry operations
-3. **Rigidity Pathologies**: Over-constraint detection
-4. **Fragmentation Pathologies**: Under-constraint breakdown detection
-5. **Inflation Pathologies**: Runaway autopoietic growth detection
-6. **Observer-Coupling Pathologies**: Interpretive failure recognition
+3. **Rigidity Signatures**: Over-constraint detection
+4. **Fragmentation Signatures**: Under-constraint breakdown detection
+5. **Inflation Signatures**: Runaway autopoietic growth detection
+6. **Observer-Coupling Signatures**: Interpretive failure recognition
 7. **Operational Monitoring**: Real-time alerting protocols
 
 ## Usage
 
 ### Primary Detection Interface
 ```sql
--- Comprehensive pathology analysis
-SELECT * FROM prisma.detect_all_pathologies(point_id);
+-- Comprehensive geometric analysis
+SELECT * FROM godel.detect_all_signatures(point_id);
 
 -- Category-specific detection
-SELECT * FROM prisma.detect_rigidity_pathologies(point_id);
-SELECT * FROM prisma.detect_fragmentation_pathologies(point_id);
-SELECT * FROM prisma.detect_inflation_pathologies(point_id);
-SELECT * FROM prisma.detect_observer_coupling_pathologies(point_id);
+SELECT * FROM godel.detect_rigidity_signatures(point_id);
+SELECT * FROM godel.detect_fragmentation_signatures(point_id);
+SELECT * FROM godel.detect_inflation_signatures(point_id);
+SELECT * FROM godel.detect_observer_coupling_signatures(point_id);
 ```
 
 ### Investigative Analysis
 ```sql
 -- Detect coordination patterns
-SELECT * FROM prisma.detect_coordination_via_coupling(
+SELECT * FROM godel.detect_coordination_via_coupling(
     time_window => '24 hours',
     coupling_threshold => 0.8,
     min_cluster_size => 3
 );
 
 -- Predict escalation trajectories  
-SELECT * FROM prisma.detect_escalation_via_field_evolution(conversation_points);
+SELECT * FROM godel.detect_escalation_via_field_evolution(conversation_points);
 ```
 
 ### Field Evolution Simulation
 ```sql
 -- Simulate coherence field evolution
-SELECT prisma.evolve_coherence_field_complete(point_id, dt => 0.01);
+SELECT godel.evolve_coherence_field_complete(point_id, dt => 0.01);
 ```
 
 ### Real-Time Monitoring
 ```sql
 -- High-priority alerts
-SELECT * FROM prisma.coordination_alerts WHERE priority = 'HIGH';
-SELECT * FROM prisma.pathology_alerts WHERE severity > 0.6;
+SELECT * FROM godel.coordination_alerts WHERE priority = 'HIGH';
+SELECT * FROM godel.geometric_alerts WHERE severity > 0.6;
 ```
 
 ## Technical Architecture
@@ -195,7 +209,8 @@ SELECT * FROM prisma.pathology_alerts WHERE severity > 0.6;
 - Configurable severity thresholds for alert tuning
 
 ### Computational Methodology
-- Operates in 100-dimensional geometric subspace for efficiency
+- Supports 2000D embeddings in primary storage
+- Performs real-time analytics in 100 dimensions, simultaneously
 - Uses finite difference methods for differential calculations
 - Employs matrix approximation techniques for real-time analysis
 
@@ -207,7 +222,7 @@ Drawing inspiration from:
 - **Differential Geometry**: Semantic manifolds with dynamic metric tensors
 - **Field Theory**: Coherence fields and recursive coupling dynamics  
 - **Gravitational Concepts**: Semantic mass influences information geometry
-- **Complex Systems**: Stability analysis and pathological attractors
+- **Complex Systems**: Stability analysis and geometric/strange attractors
 - **Information Theory**: Entropy and constraint dynamics in communication systems
 
 ### Central Mathematical Objects
