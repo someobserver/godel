@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-godel}
       # Optional: set POSTGRES_INITDB_ARGS in .env
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5444}:5432"
     volumes:
       - godel_pgdata:/var/lib/postgresql/data
     healthcheck:
