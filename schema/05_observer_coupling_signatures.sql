@@ -40,9 +40,9 @@ DECLARE
     
     rec RECORD;
 BEGIN
-    SELECT coherence_field, semantic_mass, user_fingerprint
+    SELECT mp.coherence_field, mp.semantic_mass, mp.user_fingerprint
     INTO current_coherence, semantic_mass, user_fingerprint
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -134,10 +134,13 @@ BEGIN
     field_magnitude := sqrt(sum((SELECT pow(current_coherence[i], 2) 
                                 FROM generate_series(1, LEAST(100, 2000)) i)));
     
-    SELECT AVG(mp.coherence_field) INTO baseline_coherence
+    -- Baseline: latest consensus sample from other users (avoids vector AVG)
+    SELECT mp.coherence_field INTO baseline_coherence
     FROM godel.manifold_points mp
     WHERE mp.user_fingerprint != detect_observer_solipsism.user_fingerprint
-    AND mp.creation_timestamp >= NOW() - time_window;
+    AND mp.creation_timestamp >= NOW() - time_window
+    ORDER BY mp.creation_timestamp DESC
+    LIMIT 1;
     
     IF baseline_coherence IS NULL THEN
         RETURN;

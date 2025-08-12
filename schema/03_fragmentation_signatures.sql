@@ -39,9 +39,9 @@ DECLARE
     prev_coherence VECTOR(2000);
     direction_variance FLOAT := 0.0;
 BEGIN
-    SELECT coherence_field
+    SELECT mp.coherence_field
     INTO current_coherence
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
