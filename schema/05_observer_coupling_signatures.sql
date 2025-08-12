@@ -134,7 +134,7 @@ BEGIN
     field_magnitude := sqrt(sum((SELECT pow(current_coherence[i], 2) 
                                 FROM generate_series(1, LEAST(100, 2000)) i)));
     
-    -- Baseline: latest consensus sample from other users (avoids vector AVG)
+    -- Baseline latest consensus sample
     SELECT mp.coherence_field INTO baseline_coherence
     FROM godel.manifold_points mp
     WHERE mp.user_fingerprint != detect_observer_solipsism.user_fingerprint
