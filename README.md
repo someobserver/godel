@@ -14,8 +14,9 @@
   - [For Organizations](#for-organizations)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Technical Architecture](#technical-architecture)
-- [Mathematical Framework](#mathematical-framework)
+ - [Technical Architecture](#technical-architecture)
+ - [Mathematical Framework](#mathematical-framework)
+ - [Docker](#docker)
 
 ## Overview
 
@@ -135,7 +136,43 @@ Algorithmically detects 12 coherence breakdown signatures with real-time severit
 
 ## Installation
 
-### Requirements
+### Docker (recommended)
+
+#### Prerequisites
+- Docker Desktop
+
+#### Start
+```bash
+docker compose up -d --build
+```
+
+#### Configure
+Environment variables (can be set via `.env`):
+
+- `POSTGRES_DB` (default: `godel`)
+- `POSTGRES_USER` (default: `godel`)
+- `POSTGRES_PASSWORD` (default: `godel`)
+- `POSTGRES_PORT` (default: `5432`)
+
+#### Connect
+```bash
+# defaults
+psql postgresql://godel:godel@localhost:5432/godel -c "select now() as connected;"
+
+# or env vars
+psql "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:$POSTGRES_PORT/$POSTGRES_DB"
+```
+
+#### Stop / Remove
+```bash
+docker compose down
+```
+
+Data persists in the `godel_pgdata` named volume.
+
+### Manual
+
+#### Requirements
 
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue.svg)](https://postgresql.org/)
 [![Extensions](https://img.shields.io/badge/Extensions-pgvector%200.5.0%2B-purple.svg)](https://github.com/pgvector/pgvector)
@@ -143,24 +180,24 @@ Algorithmically detects 12 coherence breakdown signatures with real-time severit
 - PostgreSQL 15+
 - pgvector 0.5.0+
 
-### Setup
+#### Setup
 ```sql
 \i install.sql
 ```
 
-### Components
-Seven schema modules provide geometric detection capabilities:
-1. **Foundation**: Geometric structures and field definitions
-2. **Geometric Analysis**: Differential geometry operations
-3. **Rigidity Signatures**: Over-constraint detection
-4. **Fragmentation Signatures**: Under-constraint breakdown detection
-5. **Inflation Signatures**: Runaway autopoietic growth detection
-6. **Observer-Coupling Signatures**: Interpretive failure recognition
-7. **Operational Monitoring**: Real-time alerting protocols
+#### Components
+Seven migration modules in `schema/` provide geometric detection capabilities:
 
-## Usage
+- `01_foundation`: Tables, geometric structures and field definitions
+- `02_rigidity_signatures`: Over-constraint
+- `03_fragmentation_signatures`: Under-constraint
+- `04_inflation_signatures`: Runaway autopoietic growth
+- `05_observer_coupling_signatures`: Interpretive failure recognition
+- `06_operational_monitoring`: Real-time alerting protocols
 
-### Primary Detection Interface
+### Usage
+
+#### Primary Detection Interface
 ```sql
 -- Comprehensive geometric analysis
 SELECT * FROM godel.detect_all_signatures(point_id);
