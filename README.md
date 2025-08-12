@@ -132,70 +132,43 @@ Algorithmically detects 12 coherence breakdown signatures with real-time severit
   - *Self-reference dominates over external coupling*
   - Signature: `‖R_ijk(p,p,t)‖/∫‖R_ijk(p,q,t)‖dq → 1`  
 
----
-
 ## Installation
 
-### Docker (recommended)
+### Docker (Recommended)
 
-#### Prerequisites
-- Docker Desktop
+**Prerequisites:** Docker Desktop
 
-#### Start
 ```bash
 docker compose up -d --build
 ```
 
-#### Configure
-Environment variables (can be set via `.env`):
-
-- `POSTGRES_DB` (default: `godel`)
-- `POSTGRES_USER` (default: `godel`)
-- `POSTGRES_PASSWORD` (default: `godel`)
-- `POSTGRES_PORT` (default: `5432`)
-
-#### Connect
+**Environment variables** (optional `.env` file):
 ```bash
-# defaults
-psql postgresql://godel:godel@localhost:5432/godel -c "select now() as connected;"
-
-# or env vars
-psql "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:$POSTGRES_PORT/$POSTGRES_DB"
+POSTGRES_DB=godel
+POSTGRES_USER=godel 
+POSTGRES_PASSWORD=godel
+POSTGRES_PORT=5444
 ```
 
-#### Stop / Remove
+**Connection:**
+```bash
+psql postgresql://godel:godel@localhost:5444/godel
+```
+
+**Shutdown:**
 ```bash
 docker compose down
 ```
 
-Data persists in the `godel_pgdata` named volume.
+### Manual Installation
 
-### Manual
+**Requirements:** PostgreSQL 15+ with pgvector 0.5.0+
 
-#### Requirements
-
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue.svg)](https://postgresql.org/)
-[![Extensions](https://img.shields.io/badge/Extensions-pgvector%200.5.0%2B-purple.svg)](https://github.com/pgvector/pgvector)
-
-- PostgreSQL 15+
-- pgvector 0.5.0+
-
-#### Setup
 ```sql
 \i install.sql
 ```
 
-#### Components
-Seven migration modules in `schema/` provide geometric detection capabilities:
-
-- `01_foundation`: Tables, geometric structures and field definitions
-- `02_rigidity_signatures`: Over-constraint
-- `03_fragmentation_signatures`: Under-constraint
-- `04_inflation_signatures`: Runaway autopoietic growth
-- `05_observer_coupling_signatures`: Interpretive failure recognition
-- `06_operational_monitoring`: Real-time alerting protocols
-
-### Usage
+## Usage
 
 #### Primary Detection Interface
 ```sql
