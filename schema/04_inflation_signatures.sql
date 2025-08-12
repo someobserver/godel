@@ -38,9 +38,9 @@ DECLARE
     
     expansion_signature FLOAT;
 BEGIN
-    SELECT coherence_field, semantic_mass
+    SELECT mp.coherence_field, mp.semantic_mass
     INTO current_coherence, semantic_mass
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     SELECT wisdom_value, humility_factor
     INTO wisdom_value, humility_factor
@@ -105,9 +105,9 @@ DECLARE
     
     rec RECORD;
 BEGIN
-    SELECT coherence_field, semantic_mass
+    SELECT mp.coherence_field, mp.semantic_mass
     INTO current_coherence, semantic_mass
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;

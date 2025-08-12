@@ -35,9 +35,9 @@ DECLARE
     constraining_force FLOAT;
     force_ratio FLOAT;
 BEGIN
-    SELECT coherence_field, semantic_mass, attractor_stability
+    SELECT mp.coherence_field, mp.semantic_mass, mp.attractor_stability
     INTO current_coherence, semantic_mass, attractor_stability
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -97,9 +97,9 @@ DECLARE
     num_samples INTEGER := 0;
     i INTEGER;
 BEGIN
-    SELECT coherence_field, semantic_mass
+    SELECT mp.coherence_field, mp.semantic_mass
     INTO current_coherence, semantic_mass
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     SELECT wisdom_value INTO wisdom_value
     FROM godel.wisdom_field
@@ -171,9 +171,9 @@ DECLARE
     dim INTEGER := 100;
     i INTEGER;
 BEGIN
-    SELECT metric_tensor, ricci_curvature, semantic_mass
+    SELECT mp.metric_tensor, mp.ricci_curvature, mp.semantic_mass
     INTO current_metric, ricci_curvature, semantic_mass
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     IF current_metric IS NULL THEN
         RETURN;
