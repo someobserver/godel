@@ -297,7 +297,7 @@ SELECT
 FROM godel.detect_coordination_via_coupling()
 WHERE rft_coordination_confidence > 0.5;
 
-CREATE VIEW godel.geometric_alerts AS
+CREATE MATERIALIZED VIEW godel.geometric_alerts_mv AS
 SELECT 
     mp.id as point_id,
     mp.user_fingerprint,
@@ -315,7 +315,20 @@ SELECT
 FROM godel.manifold_points mp
 CROSS JOIN LATERAL godel.detect_all_signatures(mp.id) as signature
 WHERE signature.severity > 0.3
+  AND mp.creation_timestamp >= NOW() - INTERVAL '24 hours'
 ORDER BY signature.severity DESC, mp.creation_timestamp DESC;
+
+CREATE INDEX IF NOT EXISTS idx_geometric_alerts_mv_point_time
+    ON godel.geometric_alerts_mv(point_id, creation_timestamp);
+CREATE INDEX IF NOT EXISTS idx_geometric_alerts_mv_severity_time
+    ON godel.geometric_alerts_mv(severity, creation_timestamp);
+CREATE INDEX IF NOT EXISTS idx_geometric_alerts_mv_priority
+    ON godel.geometric_alerts_mv(priority);
+
+CREATE OR REPLACE FUNCTION godel.refresh_geometric_alerts()
+RETURNS void LANGUAGE SQL AS $$
+    REFRESH MATERIALIZED VIEW godel.geometric_alerts_mv;
+$$;
 
 -- Performance optimization indices
 
