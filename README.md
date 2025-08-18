@@ -136,7 +136,7 @@ Algorithmically detects 12 coherence breakdown signatures with real-time severit
 
 ### Docker (Recommended)
 
-**Prerequisites:** Docker Desktop
+**Prerequisites:** Docker
 
 ```bash
 docker compose up -d --build
@@ -144,15 +144,15 @@ docker compose up -d --build
 
 **Environment variables** (optional `.env` file):
 ```bash
-POSTGRES_DB=godel
-POSTGRES_USER=godel 
-POSTGRES_PASSWORD=godel
+POSTGRES_DB=godel_db
+POSTGRES_USER=godel_user 
+POSTGRES_PASSWORD=changeme
 POSTGRES_PORT=5444
 ```
 
 **Connection:**
 ```bash
-psql postgresql://godel:godel@localhost:5444/godel
+psql postgresql://godel_user:changeme@localhost:5444/godel_db
 ```
 
 **Shutdown:**
@@ -162,7 +162,7 @@ docker compose down
 
 ### Manual Installation
 
-**Requirements:** PostgreSQL 15+ with pgvector 0.5.0+
+**Requirements:** PostgreSQL 17+ with pgvector 0.8.0+
 
 ```sql
 \i install.sql

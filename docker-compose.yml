@@ -2,36 +2,27 @@ version: "3.9"
 name: godel
 
 services:
-  db:
+  database:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: godel-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-godel}
-      POSTGRES_USER: ${POSTGRES_USER:-godel}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-godel}
+      POSTGRES_DB: ${POSTGRES_DB:-godel_db}
+      POSTGRES_USER: ${POSTGRES_USER:-godel_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
       # Optional: set POSTGRES_INITDB_ARGS in .env
     ports:
       - "${POSTGRES_PORT:-5444}:5432"
     volumes:
-      - godel_pgdata:/var/lib/postgresql/data
+      - database_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 12
-    networks:
-      - godel_net
 
 volumes:
-  godel_pgdata:
-    name: godel_pgdata
-    driver: local
-
-networks:
-  godel_net:
-    name: godel_net
+  database_data:
 
 
