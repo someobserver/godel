@@ -1,15 +1,17 @@
 node_modules
 .venv
-__pycache__
+venv/
+.env
 .pytest_cache
 .DS_Store
-.git
 .gitignore
-
-.vscode
+.git
+.cursor/*
 .idea
+.vscode
 .backup*
-.bak*
-
+*.bak
+__pycache__
+docs/
 
 
