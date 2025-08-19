@@ -1,21 +1,25 @@
 -- GODEL: Geometric Ontology Detecting Emergent Logics
 -- Fragmentation Signatures: under-constraint detection
--- File: 03_fragmentation_signatures.sql
--- Updated: 2025-08-07
+-- File: schema/03_fragmentation_signatures.sql
+-- Updated: 2025-08-19
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Instantiates:
---   - Attractor Splintering: dN_attractors/dt > κ·dΦ(C)/dt
---   - Coherence Dissolution: ||∇C|| >> ||C|| AND d²C/dt² > 0
---   - Reference Decay: d||R_ijk||/dt < 0 without compensation
+-- Provides
+--   - Attractor Splintering: attractor count growth vs generative rate
+--   - Coherence Dissolution: large gradient vs magnitude with positive acceleration
+--   - Reference Decay: coupling decay without compensatory wisdom
 
 -- Attractor Splintering
--- Signature: dN_attractors/dt > κ·dΦ(C)/dt
+--   Criterion: attractor-generation rate dominates stabilization capacity
 CREATE OR REPLACE FUNCTION godel.detect_attractor_splintering(
+-- Purpose: Detect proliferation of attractor directions beyond stabilization capacity.
+-- Condition: attractor_generation_rate / autopoietic_generation_rate > threshold.
+-- Inputs: manifold_points (coherence_field, coherence_magnitude; same conversation over window).
+-- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     splintering_threshold FLOAT DEFAULT 2.0,
     time_window INTERVAL DEFAULT '2 hours'
@@ -47,8 +51,10 @@ BEGIN
         RETURN;
     END IF;
     
-    coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) 
-                              FROM generate_series(1, LEAST(100, 2000)) i)));
+    coherence_mag := COALESCE(
+        (SELECT coherence_magnitude FROM godel.manifold_points WHERE id = point_id),
+        CASE WHEN current_coherence IS NOT NULL THEN COALESCE(public.vector_norm(current_coherence), 0.0) ELSE 0.0 END
+    );
     
     FOR rec IN (
         SELECT mp.coherence_field, mp.coherence_magnitude, mp.creation_timestamp
@@ -93,8 +99,13 @@ BEGIN
                 'ATTRACTOR_SPLINTERING'::TEXT,
                 LEAST(1.0, splintering_ratio / 10.0),
                 ARRAY[attractor_generation_rate, autopoietic_generation_rate, direction_variance, unique_directions::FLOAT],
-                format('Attractor generation: %.3f/hr > stabilization capacity: %.3f (ratio: %.1f, directions: %s)', 
-                       attractor_generation_rate, autopoietic_generation_rate, splintering_ratio, unique_directions);
+                format(
+                    'Attractor generation: %s/hr > stabilization capacity: %s (ratio: %s, directions: %s)',
+                    to_char(attractor_generation_rate::numeric, 'FM999990.000'),
+                    to_char(autopoietic_generation_rate::numeric, 'FM999990.000'),
+                    to_char(splintering_ratio::numeric, 'FM999990.0'),
+                    unique_directions
+                );
         END IF;
     END IF;
     
@@ -103,8 +114,12 @@ END;
 $$;
 
 -- Coherence Dissolution
--- Signature: ||∇C|| >> ||C|| AND d²C/dt² > 0
+--   Criterion: ∥∇C∥ ≫ ∥C∥ and acceleration > 0
 CREATE OR REPLACE FUNCTION godel.detect_coherence_dissolution(
+-- Purpose: Detect unstable growth of coherence gradients.
+-- Condition: ∥∇C∥ > τ · ∥C∥ and d²C/dt² > 0.
+-- Inputs: manifold_points (coherence_field, metric_tensor); compute_finite_differences.
+-- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     gradient_ratio_threshold FLOAT DEFAULT 3.0,
     acceleration_threshold FLOAT DEFAULT 0.0
@@ -126,25 +141,26 @@ DECLARE
     derivatives RECORD;
     dim INTEGER := 100;
 BEGIN
-    SELECT coherence_field, metric_tensor
+    SELECT mp.coherence_field, mp.metric_tensor
     INTO current_coherence, metric_tensor
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN;
     END IF;
     
-    coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) 
-                              FROM generate_series(1, LEAST(dim, 2000)) i)));
+    coherence_mag := COALESCE(public.vector_norm(current_coherence), 0.0);
     
     SELECT * INTO derivatives FROM godel.compute_finite_differences(point_id);
     
     IF derivatives IS NOT NULL THEN
-        coherence_gradient_norm := sqrt(sum((SELECT pow(derivatives.first_derivatives[i], 2) 
-                                            FROM generate_series(1, dim) i)));
+        SELECT sqrt(sum(pow(derivatives.first_derivatives[i], 2)))
+        INTO coherence_gradient_norm
+        FROM generate_series(1, dim) i;
         
-        coherence_acceleration := sum((SELECT derivatives.second_derivatives[i] 
-                                      FROM generate_series(1, dim) i));
+        SELECT sum(derivatives.second_derivatives[i])
+        INTO coherence_acceleration
+        FROM generate_series(1, dim) i;
         
         IF coherence_mag > 0.1 AND 
            coherence_gradient_norm > gradient_ratio_threshold * coherence_mag AND 
@@ -156,8 +172,13 @@ BEGIN
                 'COHERENCE_DISSOLUTION'::TEXT,
                 LEAST(1.0, dissolution_signature / 10.0),
                 ARRAY[coherence_gradient_norm, coherence_mag, coherence_acceleration],
-                format('Gradient magnitude: %.3f >> coherence: %.3f (ratio: %.1f), acceleration: %.6f > 0', 
-                       coherence_gradient_norm, coherence_mag, dissolution_signature, coherence_acceleration);
+                format(
+                    'Gradient magnitude: %s >> coherence: %s (ratio: %s), acceleration: %s > 0',
+                    to_char(coherence_gradient_norm::numeric, 'FM999990.000'),
+                    to_char(coherence_mag::numeric, 'FM999990.000'),
+                    to_char(dissolution_signature::numeric, 'FM999990.0'),
+                    to_char(coherence_acceleration::numeric, 'FM999990.000000')
+                );
         END IF;
     END IF;
     
@@ -166,8 +187,12 @@ END;
 $$;
 
 -- Reference Decay
--- Signature: d||R_ijk||/dt < 0 without compensatory mechanism
+--   Criterion: negative coupling trend with insufficient wisdom compensation
 CREATE OR REPLACE FUNCTION godel.detect_reference_decay(
+-- Purpose: Detect decreasing coupling strength without compensatory wisdom.
+-- Condition: coupling_decay_rate < θ and compensatory_wisdom < τ.
+-- Inputs: recursive_coupling (recent magnitudes), wisdom_field (wisdom, humility).
+-- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     decay_threshold FLOAT DEFAULT -0.1,
     wisdom_compensation_threshold FLOAT DEFAULT 0.3
@@ -189,11 +214,11 @@ DECLARE
     
     rec RECORD;
 BEGIN
-    SELECT wisdom_value, humility_factor
+    SELECT wf.wisdom_value, wf.humility_factor
     INTO current_wisdom, humility_factor
-    FROM godel.wisdom_field
-    WHERE point_id = detect_reference_decay.point_id
-    ORDER BY computed_at DESC LIMIT 1;
+    FROM godel.wisdom_field wf
+    WHERE wf.point_id = detect_reference_decay.point_id
+    ORDER BY wf.computed_at DESC LIMIT 1;
     
     FOR rec IN (
         SELECT rc.coupling_magnitude, rc.computed_at
@@ -226,8 +251,12 @@ BEGIN
                 'REFERENCE_DECAY'::TEXT,
                 LEAST(1.0, decay_severity * 10.0),
                 ARRAY[coupling_decay_rate, avg_coupling_strength, compensatory_wisdom, sample_count::FLOAT],
-                format('Coupling decay rate: %.3f < 0, compensatory wisdom: %.3f < threshold (samples: %s)', 
-                       coupling_decay_rate, compensatory_wisdom, sample_count);
+                format(
+                    'Coupling decay rate: %s < 0, compensatory wisdom: %s < threshold (samples: %s)',
+                    to_char(coupling_decay_rate::numeric, 'FM999990.000'),
+                    to_char(compensatory_wisdom::numeric, 'FM999990.000'),
+                    sample_count
+                );
         END IF;
     END IF;
     
@@ -254,7 +283,7 @@ $$;
 
 -- Helper functions
 
--- Coherence field derivatives
+-- Coherence field finite differences
 CREATE OR REPLACE FUNCTION godel.compute_finite_differences(
     point_id UUID,
     h FLOAT DEFAULT 1e-6
@@ -268,6 +297,7 @@ DECLARE
     first_deriv FLOAT[];
     second_deriv FLOAT[];
     i INTEGER;
+    arr_current FLOAT[];
 BEGIN
     SELECT coherence_field
     INTO current_coherence
@@ -280,19 +310,20 @@ BEGIN
         RETURN;
     END IF;
     
+    arr_current := godel.vector_to_real_array(current_coherence);
     first_deriv := ARRAY(SELECT 0.0 FROM generate_series(1, dim));
     second_deriv := ARRAY(SELECT 0.0 FROM generate_series(1, dim));
     
     FOR i IN 1..dim LOOP
         first_deriv[i] := CASE 
-            WHEN i < LEAST(dim, 2000) THEN 
-                (current_coherence[i+1] - current_coherence[GREATEST(1, i-1)]) / (2.0 * h)
+            WHEN i < LEAST(dim, COALESCE(array_length(arr_current, 1), 1)) THEN 
+                (arr_current[LEAST(i+1, array_length(arr_current,1))] - arr_current[GREATEST(1, i-1)]) / (2.0 * h)
             ELSE 0.0
         END;
         
         second_deriv[i] := CASE 
-            WHEN i > 1 AND i < LEAST(dim, 1999) THEN 
-                (current_coherence[i+1] - 2.0 * current_coherence[i] + current_coherence[i-1]) / (h * h)
+            WHEN i > 1 AND i < LEAST(dim, COALESCE(array_length(arr_current, 1), 1) - 1) THEN 
+                (arr_current[LEAST(i+1, array_length(arr_current,1))] - 2.0 * arr_current[i] + arr_current[GREATEST(1, i-1)]) / (h * h)
             ELSE 0.0
         END;
     END LOOP;
