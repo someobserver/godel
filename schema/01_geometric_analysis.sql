@@ -8,19 +8,28 @@
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Provides
---   - Christoffel symbols, covariant derivatives
---   - Metric tensor/inverse, curvature (Ricci, scalar)
---   - Geodesic distance integration
---   - Recursive coupling tensor
+-- Purpose: Provide geometric operators and linear algebra utilities over induced constraint geometry.
+-- Exposes:
+--   - Compute Christoffel symbols; compute covariant derivatives
+--   - Compute metric tensor and inverse; compute Ricci and scalar curvature
+--   - Integrate geodesic distances between points
+--   - Compute recursive coupling tensor
+-- Conventions:
+--   - Active dimension n=100; vectors stored as VECTOR(2000) and truncated when computing
+--   - Flatten all arrays in row‑major order; expand symmetric metrics to full n×n for inversion
+--   - Apply determinant/diagonal regularization when near-singular
 
 -- Geometric operators
 
--- Purpose: Compute Christoffel symbols from metric and metric derivatives.
--- Math: Γ^k_{ij} = ½ g^{kl}(∂_i g_{jl} + ∂_j g_{il} - ∂_l g_{ij}).
--- Assumptions: dimension=n; metric inverse via compute_metric_inverse; flattened row-major arrays.
--- Numerical: metric inversion regularized in compute_metric_inverse to avoid singularities.
--- Returns: flattened 3-tensor (size n^3) in row-major order.
+-- Summary: Compute Christoffel symbols Γ^k_{ij} from metric and its derivatives.
+-- Inputs:
+--   - metric_components FLOAT[] — flattened symmetric g_ij (row‑major upper-triangular stored)
+--   - metric_derivatives FLOAT[][] — ∂_i g_{jl} in flattened layout
+--   - dimension INTEGER — active dimension n (default 100)
+-- Assumptions: Flatten Γ index as (k-1)n^2 + (i-1)n + j; compute g^{-1} via compute_metric_inverse.
+-- Numerical guards: Regularize inversion in compute_metric_inverse when |det g| < ε.
+-- Returns: FLOAT[] — flattened Γ^k_{ij} (length n^3), row‑major.
+-- Complexity: O(n^4).
 CREATE OR REPLACE FUNCTION godel.compute_christoffel_symbols(
     metric_components FLOAT[],
     metric_derivatives FLOAT[][],
@@ -58,11 +67,17 @@ BEGIN
 END;
 $$;
 
--- Purpose: Evaluate covariant derivative component for a vector-like field.
--- Math: ∇_i V_j = ∂_i V_j − Γ^k_{ij} V_k.
--- Assumptions: field provided as VECTOR(2000) and truncated to active dimension.
--- Numerical: guards index access via array length; uses flattened Γ indexing.
--- Returns: scalar component (FLOAT).
+-- Summary: Evaluate a covariant derivative component for a vector-like field.
+-- Inputs:
+--   - field_components VECTOR(2000) — vector-like field V
+--   - field_derivatives FLOAT[][] — partials ∂_i V_j
+--   - christoffel_symbols FLOAT[] — flattened Γ^k_{ij}
+--   - i_index INTEGER — i component
+--   - j_index INTEGER — j component
+--   - dimension INTEGER — active dimension n (default 100)
+-- Assumptions: Truncate VECTOR(2000) to active dimension; use flattened Γ indexing.
+-- Numerical guards: Guard array access by length; clip indices to [1, len].
+-- Returns: FLOAT — (∇_i V)_j = ∂_i V_j − Γ^k_{ij} V_k.
 CREATE OR REPLACE FUNCTION godel.covariant_derivative(
     field_components VECTOR(2000),
     field_derivatives FLOAT[][],
@@ -92,11 +107,15 @@ $$;
 
 -- Metric tensors
 
--- Purpose: Heuristic construction of metric tensor from local field differences.
--- Math: g_ij ≈ ⟨∇_i C, ∇_j C⟩ + base_metric_scale · δ_ij.
--- Assumptions: uses two neighboring fields; symmetric storage; n=100 active dims.
--- Numerical: adds diagonal regularization via base_metric_scale.
--- Returns: flattened symmetric matrix (size n^2) with upper-triangular fill applied symmetrically.
+-- Summary: Construct a heuristic metric tensor from local field differences with diagonal regularization.
+-- Inputs:
+--   - semantic_field VECTOR(2000) — reference field (unused in current heuristic)
+--   - neighboring_fields VECTOR(2000)[] — two neighbors to estimate gradients
+--   - base_metric_scale FLOAT — diagonal regularization (default 1.0)
+-- Assumptions: Use two neighbors; populate upper‑triangular entries; active dimension n=100.
+-- Numerical guards: Add base_metric_scale to diagonal for stability.
+-- Returns: FLOAT[] — flattened n×n with upper‑triangular populated; symmetric assumption used downstream.
+-- Complexity: O(n^2) per gradient fill; inner products O(n^3) total.
 CREATE OR REPLACE FUNCTION godel.compute_metric_tensor_from_semantic_field(
     semantic_field VECTOR(2000),
     neighboring_fields VECTOR(2000)[],
@@ -166,11 +185,14 @@ BEGIN
 END;
 $$;
 
--- Purpose: Compute inverse metric from symmetric metric components.
--- Math: g^{-1} via Gauss–Jordan; det regularization if |det g| < ε.
--- Assumptions: symmetric input stored in flattened form; expanded to full n×n.
--- Numerical: adds 1e-6 to diagonal when near-singular; uses matrix_determinant/inverse.
--- Returns: flattened full inverse (size n^2).
+-- Summary: Invert a symmetric metric using Gauss–Jordan with determinant regularization.
+-- Inputs:
+--   - metric_components FLOAT[] — flattened upper‑triangular g_ij
+--   - dimension INTEGER — active dimension n (default 100)
+-- Assumptions: Expand symmetric components to full n×n before inversion.
+-- Numerical guards: If |det g| < 1e-10, add 1e-6 to the diagonal before inversion.
+-- Returns: FLOAT[] — flattened full inverse g^{ij} (length n^2).
+-- Complexity: O(n^3).
 CREATE OR REPLACE FUNCTION godel.compute_metric_inverse(
     metric_components FLOAT[],
     dimension INTEGER DEFAULT 100
@@ -225,8 +247,12 @@ $$;
 
 -- Linear algebra utilities
 
--- Purpose: Determinant via LU-style elimination with partial pivoting.
--- Numerical: pivoting for stability; ε=1e-12 guard returns 0 for near-singular matrices.
+-- Summary: Compute determinant via LU-style elimination with partial pivoting.
+-- Inputs:
+--   - matrix FLOAT[][] — square matrix (n×n)
+--   - n INTEGER — dimension
+-- Numerical guards: Use partial pivoting; if |pivot| < 1e-12, return 0.0.
+-- Returns: FLOAT — det(matrix).
 -- Complexity: O(n^3).
 CREATE OR REPLACE FUNCTION godel.matrix_determinant(
     matrix FLOAT[][],
@@ -282,8 +308,12 @@ BEGIN
 END;
 $$;
 
--- Purpose: Invert matrix using Gauss–Jordan elimination on an augmented system.
--- Numerical: raises on singular pivot (< 1e-12); row operations normalized per pivot.
+-- Summary: Invert a matrix using Gauss–Jordan elimination on an augmented system.
+-- Inputs:
+--   - matrix FLOAT[][] — square matrix (n×n)
+--   - n INTEGER — dimension
+-- Numerical guards: Raise if |pivot| < 1e-12; normalize each pivot row.
+-- Returns: FLOAT[][] — inverse matrix (n×n).
 -- Complexity: O(n^3).
 CREATE OR REPLACE FUNCTION godel.matrix_inverse_gauss_jordan(
     matrix FLOAT[][],
@@ -338,11 +368,15 @@ $$;
 
 -- Curvature calculations
 
--- Purpose: Compute Ricci curvature components from Γ and ∂Γ contractions.
--- Math: R_ij = ∂_k Γ^k_{ij} − ∂_j Γ^k_{ik} + Γ^l_{ij}Γ^k_{kl} − Γ^l_{ik}Γ^k_{jl}.
--- Assumptions: flattened indexing for Γ and ∂Γ; dimension=n.
--- Numerical: tolerant to NULL ∂Γ by skipping derivative terms.
--- Returns: flattened n×n Ricci matrix.
+-- Summary: Compute Ricci curvature components from Γ and ∂Γ contractions.
+-- Inputs:
+--   - christoffel_symbols FLOAT[] — flattened Γ^k_{ij} (length n^3)
+--   - christoffel_derivatives FLOAT[][][] — ∂_k Γ^k_{ij} proxies (nullable)
+--   - dimension INTEGER — active dimension n (default 100)
+-- Assumptions: Use flattened indexing for Γ and its derivatives; dimension=n.
+-- Numerical guards: Skip derivative terms when ∂Γ is NULL.
+-- Returns: FLOAT[] — flattened Ricci components R_ij (length n^2).
+-- Complexity: O(n^4).
 CREATE OR REPLACE FUNCTION godel.compute_ricci_curvature(
     christoffel_symbols FLOAT[],
     christoffel_derivatives FLOAT[][][],
@@ -395,11 +429,13 @@ BEGIN
 END;
 $$;
 
--- Scalar curvature
+-- Summary: Contract scalar curvature R = g^{ij} R_{ij} using flattened arrays.
+-- Inputs:
+--   - ricci_components FLOAT[] — flattened R_{ij}
+--   - metric_inverse FLOAT[] — flattened g^{ij}
+--   - dimension INTEGER — active dimension n (default 100)
+-- Returns: FLOAT — scalar curvature R.
 CREATE OR REPLACE FUNCTION godel.compute_scalar_curvature(
--- Purpose: Scalar curvature R via contraction g^{ij} R_{ij}.
--- Math: R = Σ_{ij} g^{ij} R_{ij} using flattened arrays.
--- Returns: scalar (FLOAT).
     ricci_components FLOAT[],
     metric_inverse FLOAT[],
     dimension INTEGER DEFAULT 100
@@ -418,7 +454,14 @@ $$;
 
 -- Geodesic integration
 
--- Distance integration between manifold points
+-- Summary: Integrate geodesic distance between two manifold points over a linearized trajectory.
+-- Inputs:
+--   - point_a UUID — start point id
+--   - point_b UUID — end point id
+--   - num_steps INTEGER — integration steps (default 100)
+-- Assumptions: Linearly mix Γ and g along path; use active dimension n=100; fall back to Euclidean when tensors missing.
+-- Numerical guards: Guard NULL tensors; take sqrt(|ds|) to ensure non-negativity.
+-- Returns: FLOAT — approximate geodesic length.
 CREATE OR REPLACE FUNCTION godel.integrate_geodesic_distance(
     point_a UUID,
     point_b UUID,
@@ -537,11 +580,16 @@ $$;
 
 -- Coupling analysis
 
+-- Summary: Compute a heuristic mixed-partial recursive coupling tensor over semantic/coherence fields.
+-- Inputs:
+--   - point_p UUID — source point id p
+--   - point_q UUID — target point id q
+--   - h FLOAT — finite difference step (unused placeholder; default 1e-6)
+-- Assumptions: Map VECTOR(2000) to arrays; active dimension n=100; guard indices by array length.
+-- Numerical guards: Clip array indexing to available lengths; avoid division by zero via +1 in denominator.
+-- Returns: FLOAT[] — flattened R_ijk (length n^3).
+-- Complexity: O(n^3).
 CREATE OR REPLACE FUNCTION godel.compute_recursive_coupling_tensor(
--- Purpose: Heuristic mixed-partial coupling tensor over semantic/coherence fields.
--- Math: R_ijk ≈ (p_i · q_j · c_k) / (1 + |p_i| + |q_j|) on active dimension slice.
--- Assumptions: maps VECTOR(2000) to real[]; n=100; index guards for length.
--- Returns: flattened 3-tensor (size n^3).
     point_p UUID,
     point_q UUID,
     h FLOAT DEFAULT 1e-6

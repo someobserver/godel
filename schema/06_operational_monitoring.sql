@@ -8,19 +8,27 @@
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Provides
---   - Coordination detection via coupling analysis
---   - Escalation prediction via field dynamics
---   - Coherence field evolution simulation
---   - Monitoring views and performance indexes
+-- Purpose: Provide operational analytics, simulation, and monitoring structures.
+-- Exposes:
+--   - Detect coordination via coupling analysis and geometric coherence
+--   - Estimate escalation trajectories via field dynamics
+--   - Evolve coherence fields via geometric/regulatory forces
+--   - Materialize monitoring views and performance indexes
+-- Conventions:
+--   - Use active dimension n=100 for geometric computations
+--   - Score and severity outputs clipped to [0,1]
 
 -- Coordination detection
---   Clusters high-coupling cross-user pairs into hourly buckets; derives confidence score
+
+-- Summary: Cluster cross‑user pairs with high coupling into hourly buckets and score coordination confidence.
+-- Inputs:
+--   - time_window INTERVAL — sample horizon (default '24 hours')
+--   - coupling_threshold FLOAT — minimum coupling (default 0.8)
+--   - min_cluster_size INTEGER — minimum edges (default 3)
+-- Assumptions: Filter pairs by coupling/time; adjust geometric coherence using metric determinant when available.
+-- Score: rft_coordination_confidence = clip(avg(coupling) · avg(geometric_coherence) · (count/10) · (avg_mass/100)).
+-- Returns: TABLE(cluster_id, cluster_size, avg_coupling_strength, geometric_coherence, rft_coordination_confidence, semantic_mass_concentration).
 CREATE OR REPLACE FUNCTION godel.detect_coordination_via_coupling(
--- Purpose: Identify cross-user coordination clusters via high coupling and geometric coherence.
--- Method: pairwise coupling filter (≥ threshold) within window → hourly bucket clustering.
--- Score: rft_coordination_confidence = clip(avg(coupling)·avg(coherence)·(count/10)·(avg_mass/100)).
--- Returns: clusters with confidence and mass concentration; filtered to rft_confidence > 0.5.
     time_window INTERVAL DEFAULT '24 hours',
     coupling_threshold FLOAT DEFAULT 0.8,
     min_cluster_size INTEGER DEFAULT 3
@@ -85,11 +93,14 @@ CREATE OR REPLACE FUNCTION godel.detect_coordination_via_coupling(
 $$;
 
 -- Escalation detection
---   Uses coherence acceleration with scalar curvature to estimate trajectory and urgency
+
+-- Summary: Estimate escalation trajectory using coherence acceleration and curvature along a conversation.
+-- Inputs:
+--   - conversation_points UUID[] — ordered ids for a conversation
+-- Assumptions: Compute velocity from distance over time; couple with scalar curvature; use semantic_mass for weighting.
+-- Numerical guards: Ensure time deltas ≥ 1s; default intervention baseline when humility not low.
+-- Returns: TABLE(point_id, coherence_acceleration, semantic_curvature, escalation_trajectory, intervention_urgency).
 CREATE OR REPLACE FUNCTION godel.detect_escalation_via_field_evolution(
--- Purpose: Estimate escalation trajectory using coherence acceleration and curvature along a conversation.
--- Inputs: ordered `manifold_points` ids; uses scalar_curvature and semantic_mass.
--- Returns: per-point acceleration, curvature, trajectory, and intervention urgency.
     conversation_points UUID[]
 ) RETURNS TABLE (
     point_id UUID,
@@ -147,13 +158,16 @@ END;
 $$;
 
 -- Coherence field evolution
---   Integrates dalembertian + attractor gradient + autopoietic gradient + humility damping
+
+-- Summary: Integrate coherence field update under geometric and regulatory forces.
+-- Inputs:
+--   - point_id UUID — target point
+--   - dt FLOAT — integration step (default 0.01)
+-- Terms: dalembertian (covariant second derivative + Ricci term), stability attractor, autopoietic gradient, humility damping.
+-- Assumptions: Active dimension n=100; truncate to VECTOR(2000); compute metric inverse each step.
+-- Numerical guards: Use finite differences with h=1e-6; apply diagonal mass term; clip indices to available length.
+-- Returns: VECTOR(2000) — updated field.
 CREATE OR REPLACE FUNCTION godel.evolve_coherence_field_complete(
--- Purpose: Integrate coherence field update under geometric and regulatory forces.
--- Terms: dalembertian (covariant second derivative + Ricci term), stability attractor, autopoietic, humility damping.
--- Assumptions: active dimension n=100; vector(2000) truncated; metric inverse computed each step.
--- Numerical: finite differences with step h=1e-6; diagonal mass term; linear integration with step dt.
--- Returns: updated field as VECTOR(2000).
     point_id UUID,
     dt FLOAT DEFAULT 0.01
 ) RETURNS VECTOR(2000) LANGUAGE plpgsql AS $$
@@ -317,6 +331,7 @@ $$;
 
 -- Operational monitoring views
 
+-- Summary: Materialize coordination alerts by severity and priority.
 CREATE OR REPLACE VIEW godel.coordination_alerts AS
 SELECT 
     cluster_id,
@@ -341,6 +356,7 @@ DO $$ BEGIN
     END IF;
 END $$;
 
+-- Summary: Materialize geometric alerts within the last 24 hours by severity and priority.
 CREATE MATERIALIZED VIEW godel.geometric_alerts_mv AS
 SELECT 
     mp.id as point_id,

@@ -8,18 +8,28 @@
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Provides
---   - Attractor Splintering: attractor count growth vs generative rate
---   - Coherence Dissolution: large gradient vs magnitude with positive acceleration
---   - Reference Decay: coupling decay without compensatory wisdom
+-- Purpose: Detect under‑constraint failure modes where coherence disperses.
+-- Exposes:
+--   - Detect Attractor Splintering: attractor proliferation vs generative capacity
+--   - Detect Coherence Dissolution: gradient dominates magnitude with positive acceleration
+--   - Detect Reference Decay: coupling decay without compensatory wisdom
+-- Conventions:
+--   - Return tables include (signature_type, severity ∈ [0,1], geometric_signature[], mathematical_evidence)
+--   - Active dimension n=100; use stored coherence_magnitude when present
 
 -- Attractor Splintering
---   Criterion: attractor-generation rate dominates stabilization capacity
+
+-- Summary: Detect proliferation of attractor directions beyond stabilization capacity.
+-- Condition: attractor_generation_rate / autopoietic_generation_rate > τ.
+-- Inputs:
+--   - point_id UUID — target point
+--   - splintering_threshold FLOAT — τ (default 2.0)
+--   - time_window INTERVAL — horizon (default '2 hours')
+-- Assumptions: Count unique direction changes above 0.3 cosine delta; use conversation-local sequence.
+-- Numerical guards: Use stored C_mag else compute; avoid division by zero when Φ(C)=0.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((rate ratio)/10).
 CREATE OR REPLACE FUNCTION godel.detect_attractor_splintering(
--- Purpose: Detect proliferation of attractor directions beyond stabilization capacity.
--- Condition: attractor_generation_rate / autopoietic_generation_rate > threshold.
--- Inputs: manifold_points (coherence_field, coherence_magnitude; same conversation over window).
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     splintering_threshold FLOAT DEFAULT 2.0,
     time_window INTERVAL DEFAULT '2 hours'
@@ -114,12 +124,18 @@ END;
 $$;
 
 -- Coherence Dissolution
---   Criterion: ∥∇C∥ ≫ ∥C∥ and acceleration > 0
+
+-- Summary: Detect unstable growth of coherence gradients relative to magnitude with positive acceleration.
+-- Condition: ||∇C|| > τ · ||C|| ∧ d²C/dt² > 0.
+-- Inputs:
+--   - point_id UUID — target point
+--   - gradient_ratio_threshold FLOAT — τ (default 3.0)
+--   - acceleration_threshold FLOAT — lower bound (default 0.0)
+-- Assumptions: Compute finite differences over active dimension n=100.
+-- Numerical guards: Use ε=1e-10 in ratios; skip NULL derivatives gracefully.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((||∇C||/(||C||+ε))/10).
 CREATE OR REPLACE FUNCTION godel.detect_coherence_dissolution(
--- Purpose: Detect unstable growth of coherence gradients.
--- Condition: ∥∇C∥ > τ · ∥C∥ and d²C/dt² > 0.
--- Inputs: manifold_points (coherence_field, metric_tensor); compute_finite_differences.
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     gradient_ratio_threshold FLOAT DEFAULT 3.0,
     acceleration_threshold FLOAT DEFAULT 0.0
@@ -187,12 +203,18 @@ END;
 $$;
 
 -- Reference Decay
---   Criterion: negative coupling trend with insufficient wisdom compensation
+
+-- Summary: Detect decreasing coupling strength without compensatory wisdom.
+-- Condition: coupling_decay_rate < θ ∧ compensatory_wisdom < τ.
+-- Inputs:
+--   - point_id UUID — target point
+--   - decay_threshold FLOAT — θ (default -0.1)
+--   - wisdom_compensation_threshold FLOAT — τ (default 0.3)
+-- Assumptions: Use last 10 couplings where point is p or q; compensate by wisdom×humility.
+-- Numerical guards: Require >1 sample; use absolute values in severity.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(|decay| · (1−compensation) · 10).
 CREATE OR REPLACE FUNCTION godel.detect_reference_decay(
--- Purpose: Detect decreasing coupling strength without compensatory wisdom.
--- Condition: coupling_decay_rate < θ and compensatory_wisdom < τ.
--- Inputs: recursive_coupling (recent magnitudes), wisdom_field (wisdom, humility).
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     decay_threshold FLOAT DEFAULT -0.1,
     wisdom_compensation_threshold FLOAT DEFAULT 0.3
@@ -283,7 +305,13 @@ $$;
 
 -- Helper functions
 
--- Coherence field finite differences
+-- Summary: Compute first and second finite differences over the coherence field.
+-- Inputs:
+--   - point_id UUID — target point
+--   - h FLOAT — finite difference step (default 1e-6)
+-- Assumptions: Active dimension n=100; center differences for interior; forward/backward near edges.
+-- Numerical guards: Return zeros when field is NULL; clip indices to available length.
+-- Returns: TABLE(first_derivatives FLOAT[], second_derivatives FLOAT[]).
 CREATE OR REPLACE FUNCTION godel.compute_finite_differences(
     point_id UUID,
     h FLOAT DEFAULT 1e-6

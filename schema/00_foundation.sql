@@ -8,20 +8,23 @@
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Purpose
---   Define core entities and minimal math utilities used by geometric analysis and signatures.
--- Entities
---   - Manifold points: semantic/coherence fields and derived tensors
---   - Recursive coupling: pairwise coupling tensors and magnitudes
---   - Wisdom field: regulation metrics for damping/compensation
+-- Purpose: Establish the godel schema, vector extension, core entities, and foundational math utilities.
+-- Exposes:
+--   - Define core entities: manifold points, recursive coupling, wisdom field
+--   - Compute semantic mass, autopoietic potential, humility operator
+--   - Provide vector utilities and dimension/window conventions
+-- Conventions:
+--   - Active dimension n=100 for geometric operators; storage uses VECTOR(2000)
+--   - Flatten matrices/tensors in row-major order; treat metrics as symmetric
+--   - Apply numerical regularization (eps ∈ [1e-12, 1e-6]) to guard near-singular cases
 
--- PostgreSQL extensions
+-- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE SCHEMA IF NOT EXISTS godel;
 
--- Main tables
+-- Define core entities
 
 CREATE TABLE IF NOT EXISTS godel.manifold_points (
     id UUID PRIMARY KEY,
@@ -29,22 +32,22 @@ CREATE TABLE IF NOT EXISTS godel.manifold_points (
     user_fingerprint TEXT,
     creation_timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
     
-    -- Semantic field vectors
+    -- Define semantic/coherence vectors
     semantic_field VECTOR(2000),
     coherence_field VECTOR(2000),
     coherence_magnitude FLOAT,
     
-    -- Geometric structures
+    -- Store geometric structures
     metric_tensor FLOAT[],
     metric_determinant FLOAT,
     
-    -- Semantic mass components: M = D * ρ * A
+    -- Compute semantic mass components: M = D · ρ · A
     recursive_depth FLOAT,
     constraint_density FLOAT,
     attractor_stability FLOAT,
     semantic_mass FLOAT,
     
-    -- Differential geometry
+    -- Store differential geometry tensors
     christoffel_symbols FLOAT[],
     ricci_curvature FLOAT[],
     scalar_curvature FLOAT,
@@ -57,15 +60,15 @@ CREATE TABLE IF NOT EXISTS godel.recursive_coupling (
     point_p UUID NOT NULL REFERENCES godel.manifold_points(id),
     point_q UUID NOT NULL REFERENCES godel.manifold_points(id),
     
-    -- Coupling tensors
+    -- Store coupling tensors
     coupling_tensor FLOAT[],
     coupling_magnitude FLOAT,
     
-    -- Coordination decomposition
+    -- Decompose coordination mass
     self_coupling FLOAT[],
     hetero_coupling FLOAT[],
     
-    -- Temporal dynamics
+    -- Track temporal dynamics
     evolution_rate FLOAT,
     latent_channels FLOAT[],
     
@@ -75,12 +78,12 @@ CREATE TABLE IF NOT EXISTS godel.recursive_coupling (
 CREATE TABLE IF NOT EXISTS godel.wisdom_field (
     point_id UUID PRIMARY KEY REFERENCES godel.manifold_points(id),
 
-    -- Regulation metrics
+    -- Store regulation metrics
     wisdom_value FLOAT,
     forecast_sensitivity FLOAT,
     gradient_response FLOAT,
 
-    -- Humility operators
+    -- Store humility operators
     humility_factor FLOAT,
     recursion_regulation FLOAT,
     
@@ -88,14 +91,17 @@ CREATE TABLE IF NOT EXISTS godel.wisdom_field (
 );
 
 -- Utility functions (math)
--- Scope: public primitives used across geometry and signatures.
+-- Scope: Public primitives used across geometry and signatures.
 
--- Semantic Mass
---   Math: M = D · ρ · A with ρ = 1 / max(det g, 1e-10)
+-- Summary: Compute semantic mass M from recursion depth, metric determinant, and attractor stability.
+-- Inputs:
+--   - recursive_depth FLOAT — recursion depth component D
+--   - metric_determinant FLOAT — det g; ρ = 1 / max(det g, 1e-10)
+--   - attractor_stability FLOAT — attractor stability A
+-- Assumptions: Treat inputs as normalized scalars unless specified.
+-- Numerical guards: Floor det g at 1e-10 to avoid division by zero.
+-- Returns: FLOAT — semantic mass M = D · ρ · A ∈ [0, ∞).
 CREATE OR REPLACE FUNCTION godel.compute_semantic_mass(
--- Purpose: Compute semantic mass M from depth, metric determinant, and attractor stability.
--- Math: M = D · ρ · A with ρ = 1 / max(det g, 1e-10).
--- Returns: scalar (FLOAT).
     recursive_depth FLOAT,
     metric_determinant FLOAT,
     attractor_stability FLOAT
@@ -106,12 +112,16 @@ CREATE OR REPLACE FUNCTION godel.compute_semantic_mass(
         attractor_stability
 $$;
 
--- Autopoietic Potential
---   Math: Φ(C) = α · (C - C_thr)^β for C ≥ C_thr; else 0
+-- Summary: Compute autopoietic activation above coherence threshold.
+-- Inputs:
+--   - coherence_magnitude FLOAT — ‖C‖
+--   - coherence_threshold FLOAT — C_thr (default 0.7)
+--   - alpha FLOAT — α (default 1.0)
+--   - beta FLOAT — β (default 2.0)
+-- Assumptions: Apply only when ‖C‖ ≥ C_thr; else return 0.
+-- Numerical guards: None beyond piecewise definition.
+-- Returns: FLOAT — Φ(C) = α (‖C‖ − C_thr)^β for ‖C‖ ≥ C_thr; else 0.
 CREATE OR REPLACE FUNCTION godel.compute_autopoietic_potential(
--- Purpose: Piecewise autopoietic activation above coherence threshold.
--- Math: Φ(C) = α (C − C_thr)^β for C ≥ C_thr; else 0.
--- Returns: scalar (FLOAT).
     coherence_magnitude FLOAT,
     coherence_threshold FLOAT DEFAULT 0.7,
     alpha FLOAT DEFAULT 1.0,
@@ -125,12 +135,15 @@ CREATE OR REPLACE FUNCTION godel.compute_autopoietic_potential(
         END
 $$;
 
--- Humility Operator
---   Math: H[R] = ||R||_F · exp(-k( ||R||_F - R_opt )) ; bounded exponent for stability
+-- Summary: Compute humility damping against excessive recursion from coupling magnitude.
+-- Inputs:
+--   - coupling_magnitude FLOAT — ‖R‖_F
+--   - optimal_recursion FLOAT — R_opt (default 0.5)
+--   - decay_constant FLOAT — k (default 2.0)
+-- Assumptions: Exponential damping centered at optimal_recursion.
+-- Numerical guards: Bound exponent to [-50, 50] for numerical stability.
+-- Returns: FLOAT — H[R] = ‖R‖_F · exp(−k(‖R‖_F − R_opt)).
 CREATE OR REPLACE FUNCTION godel.compute_humility_operator(
--- Purpose: Damping against excessive recursion based on coupling magnitude.
--- Math: H[R] = ||R||_F · exp(−k( ||R||_F − R_opt )). Exponent bounded for stability.
--- Returns: scalar (FLOAT).
     coupling_magnitude FLOAT,
     optimal_recursion FLOAT DEFAULT 0.5,
     decay_constant FLOAT DEFAULT 2.0
@@ -142,7 +155,10 @@ $$;
 
 -- Vector helpers
 
--- Convert pgvector to real[] for elementwise operations when necessary
+-- Summary: Convert `vector` to `FLOAT[]` for element-wise operations.
+-- Inputs:
+--   - v vector — pgvector input
+-- Returns: FLOAT[] — array of components in row order.
 CREATE OR REPLACE FUNCTION godel.vector_to_real_array(v vector)
 RETURNS FLOAT[] LANGUAGE SQL AS $$
     SELECT ARRAY(
@@ -152,6 +168,7 @@ RETURNS FLOAT[] LANGUAGE SQL AS $$
 $$;
 
 -- Dimension/window configuration (conventions)
+-- Summary: Provide active dimension/window sizes for geometric operators.
 CREATE OR REPLACE FUNCTION godel.get_active_dimension()
 RETURNS INTEGER LANGUAGE SQL AS $$
     SELECT 100
@@ -162,7 +179,10 @@ RETURNS INTEGER LANGUAGE SQL AS $$
     SELECT 50
 $$;
 
--- L2 norm of vector (sqrt of sum of squares)
+-- Summary: Compute L2 norm of a pgvector as sqrt(sum of squares)).
+-- Inputs:
+--   - v vector — pgvector input
+-- Returns: FLOAT — Euclidean norm ‖v‖_2.
 CREATE OR REPLACE FUNCTION godel.vector_l2_norm(v vector)
 RETURNS FLOAT LANGUAGE SQL AS $$
     WITH elems AS (

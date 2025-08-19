@@ -8,18 +8,28 @@
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Provides
---   - Delusional Expansion: Φ(C) ≫ constraining force, humility≈0, low wisdom
---   - Semantic Hypercoherence: C > C_max with low external influence flux
---   - Recurgent Parasitism: local mass growth with ecological drain
+-- Purpose: Detect runaway autopoiesis where self‑reinforcement overcomes constraint/feedback.
+-- Exposes:
+--   - Detect Delusional Expansion: Φ(C) dominates constraining force with low humility and wisdom
+--   - Detect Semantic Hypercoherence: coherence saturation with low external influence flux
+--   - Detect Recurgent Parasitism: local mass growth concurrent with ecological drain
+-- Conventions:
+--   - Return tables include (signature_type, severity ∈ [0,1], geometric_signature[], mathematical_evidence)
 
 -- Delusional Expansion
---   Criterion: Φ(C) ≫ constraining force and (humility, wisdom) below thresholds
+
+-- Summary: Detect runaway autopoiesis unanchored by constraint, humility, and wisdom.
+-- Condition: Φ(C) > α·constraining_force ∧ humility < θ_H ∧ wisdom < θ_W.
+-- Inputs:
+--   - point_id UUID — target point
+--   - autopoietic_threshold FLOAT — α (default 5.0)
+--   - humility_threshold FLOAT — θ_H (default 0.1)
+--   - wisdom_threshold FLOAT — θ_W (default 0.2)
+-- Assumptions: Compute Φ via compute_autopoietic_potential with C_thr≈0.7; constrain force via |C−C_thr|.
+-- Numerical guards: Use ε in denominators; bound exponents elsewhere.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((Φ/force)·(1−H)·(1−W)/20).
 CREATE OR REPLACE FUNCTION godel.detect_delusional_expansion(
--- Purpose: Detect runaway autopoiesis unanchored by constraint/wisdom.
--- Condition: Φ(C) > α·constraining_force with humility<w_thr and wisdom<w_thr.
--- Inputs: manifold_points (coherence_field, coherence_magnitude, semantic_mass), wisdom_field.
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     autopoietic_threshold FLOAT DEFAULT 5.0,
     humility_threshold FLOAT DEFAULT 0.1,
@@ -92,12 +102,19 @@ END;
 $$;
 
 -- Semantic Hypercoherence
---   Criterion: coherence above maximum threshold with low boundary flux
+
+-- Summary: Detect coherence saturation with low external influence flux.
+-- Condition: C_mag > C_max ∧ mean external_influence_flux < θ_leak.
+-- Inputs:
+--   - point_id UUID — target point
+--   - coherence_max_threshold FLOAT — C_max (default 0.95)
+--   - leakage_threshold FLOAT — θ_leak (default 0.1)
+--   - time_window INTERVAL — horizon (default '4 hours')
+-- Assumptions: Estimate permeability via coupling magnitudes × external mass; average over window.
+-- Numerical guards: Require samples > 0; compute C_mag over active dimension.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(C_mag · (1 − flux)).
 CREATE OR REPLACE FUNCTION godel.detect_semantic_hypercoherence(
--- Purpose: Detect saturation of coherence with low external influence flux.
--- Condition: C_mag > C_max and mean external_influence_flux < leakage_threshold.
--- Inputs: manifold_points, recursive_coupling (recent), windowed averaging.
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     coherence_max_threshold FLOAT DEFAULT 0.95,
     leakage_threshold FLOAT DEFAULT 0.1,
@@ -175,12 +192,19 @@ END;
 $$;
 
 -- Recurgent Parasitism
---   Criterion: positive local mass growth while external ecology declines
+
+-- Summary: Detect local mass growth concurrent with ecological drain.
+-- Condition: local_growth_rate > τ ∧ ecological_drain_rate < θ over window.
+-- Inputs:
+--   - point_id UUID — target point
+--   - growth_threshold FLOAT — τ (default 0.5)
+--   - ecological_drain_threshold FLOAT — θ (default -0.2)
+--   - time_window INTERVAL — horizon (default '6 hours')
+-- Assumptions: Compare user-local mass trend vs average non‑local trend over time buckets.
+-- Numerical guards: Require >2 samples in each series; average before differencing.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(local_growth · |drain| · 5).
 CREATE OR REPLACE FUNCTION godel.detect_recurgent_parasitism(
--- Purpose: Detect local mass growth concurrent with ecological drain.
--- Condition: local_growth_rate > τ and ecological_drain_rate < θ over window.
--- Inputs: manifold_points (by user and others), time-bucket trends.
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     growth_threshold FLOAT DEFAULT 0.5,
     ecological_drain_threshold FLOAT DEFAULT -0.2,

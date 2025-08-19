@@ -8,18 +8,28 @@
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Provides
---   - Attractor Dogmatism: A > A_crit and constraining force >> generative potential
---   - Belief Calcification: low response rate under pressure
---   - Metric Crystallization: ∂g/∂t → 0 with nonzero curvature
+-- Purpose: Detect over‑constraint failure modes in the constraint geometry.
+-- Exposes:
+--   - Detect Attractor Dogmatism: constraining force dominates generative potential
+--   - Detect Belief Calcification: low response rate under pressure
+--   - Detect Metric Crystallization: ∂g/∂t → 0 with persistent curvature
+-- Conventions:
+--   - Return tables include (signature_type, severity ∈ [0,1], geometric_signature[], mathematical_evidence)
+--   - Use stored coherence_magnitude when present; else compute over active dimension
 
 -- Attractor Dogmatism
---   Criterion: A > A_crit and constraining force >> Φ(C)
+
+-- Summary: Detect over‑constraint where attractor stability and constraining force dominate generative potential.
+-- Condition: A > A_crit ∧ ((|C−C_thr| · C_mag)/Φ(C)) > τ, guarding Φ(C)=0 with ε.
+-- Inputs:
+--   - point_id UUID — target point
+--   - attractor_threshold FLOAT — A_crit (default 0.8)
+--   - force_ratio_threshold FLOAT — τ (default 3.0)
+-- Assumptions: Prefer stored coherence_magnitude else compute over active dimension.
+-- Numerical guards: Use ε=1e-10 when Φ(C)=0 to avoid division by zero.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((constraining_force/Φ(C))/10).
 CREATE OR REPLACE FUNCTION godel.detect_attractor_dogmatism(
--- Purpose: Detect over-constraint where attractor stability and constraining force dominate.
--- Condition: A > A_crit and (|C−C_thr|·C_mag)/Φ(C) > τ (with guard when Φ=0).
--- Inputs: manifold_points (coherence_field, coherence_magnitude, semantic_mass, attractor_stability).
--- Returns: rows (type,severity∈[0,1],geometric_signature[],mathematical_evidence).
     point_id UUID,
     attractor_threshold FLOAT DEFAULT 0.8,
     force_ratio_threshold FLOAT DEFAULT 3.0
@@ -86,12 +96,18 @@ END;
 $$;
 
 -- Belief Calcification
---   Criterion: response rate ≈ 0 despite pressure within time window
+
+-- Summary: Detect low responsiveness of coherence under nontrivial external pressure.
+-- Condition: mean ΔC over window < ε ∧ avg semantic_mass > θ.
+-- Inputs:
+--   - point_id UUID — target point
+--   - responsiveness_threshold FLOAT — ε (default 0.01)
+--   - time_window INTERVAL — horizon (default '6 hours')
+-- Assumptions: Use conversation-local trajectory over window; external pressure proxied by semantic_mass.
+-- Numerical guards: Use ε=1e-10 in ratios; require >1 sample.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(responsiveness_failure/50).
 CREATE OR REPLACE FUNCTION godel.detect_belief_calcification(
--- Purpose: Detect low responsiveness of coherence under nontrivial pressure.
--- Condition: mean ΔC over window < ε and avg semantic_mass > threshold.
--- Inputs: manifold_points (coherence_field, semantic_mass), wisdom_field (wisdom_value).
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     responsiveness_threshold FLOAT DEFAULT 0.01,
     time_window INTERVAL DEFAULT '6 hours'
@@ -169,12 +185,18 @@ END;
 $$;
 
 -- Metric Crystallization
---   Criterion: slow metric evolution with nonzero curvature pressure
+
+-- Summary: Detect static metric evolution with persistent curvature pressure.
+-- Condition: evolution_rate < ε ∧ mean |R| > κ.
+-- Inputs:
+--   - point_id UUID — target point
+--   - evolution_threshold FLOAT — ε (default 0.01)
+--   - curvature_threshold FLOAT — κ (default 0.1)
+-- Assumptions: Estimate evolution rate from |semantic_mass|; average |R| over active dimension.
+-- Numerical guards: Use ε in ratios; handle NULL curvature arrays.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((curvature_pressure/(evolution_rate+ε))/100).
 CREATE OR REPLACE FUNCTION godel.detect_metric_crystallization(
--- Purpose: Detect static metric evolution with persistent curvature pressure.
--- Condition: evolution_rate (∝ |semantic_mass|) < ε and mean |R| > κ.
--- Inputs: manifold_points (metric_tensor, ricci_curvature, semantic_mass).
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     evolution_threshold FLOAT DEFAULT 0.01,
     curvature_threshold FLOAT DEFAULT 0.1

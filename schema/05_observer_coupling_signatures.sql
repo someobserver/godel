@@ -8,18 +8,27 @@
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Provides
---   - Paranoid Interpretation: negative bias with threat-pattern concentration
---   - Observer Solipsism: interpretation divergence exceeds fraction of field magnitude
---   - Semantic Narcissism: self-coupling dominates with weak external references
+-- Purpose: Detect interpretation breakdowns relative to consensus and external references.
+-- Exposes:
+--   - Detect Paranoid Interpretation: negative bias with threat‑pattern concentration
+--   - Detect Observer Solipsism: interpretation divergence relative to field magnitude
+--   - Detect Semantic Narcissism: self‑coupling dominance with weak external references
+-- Conventions:
+--   - Return tables include (signature_type, severity ∈ [0,1], geometric_signature[], mathematical_evidence)
 
 -- Paranoid Interpretation
---   Criterion: sustained negative interpretation bias and threat hyperattractor concentration
+
+-- Summary: Detect negative interpretation bias with threat‑pattern concentration.
+-- Condition: mean negative bias > θ_bias ∧ threat pattern concentration > τ.
+-- Inputs:
+--   - point_id UUID — target point
+--   - bias_threshold FLOAT — θ_bias (default 0.3)
+--   - threat_hyperattractor_threshold FLOAT — τ (default 0.8)
+-- Assumptions: Use small window norm as a bias proxy; count threats where mass high and coupling low.
+-- Numerical guards: Require sufficient samples; compute norms over small window.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(bias · threat_concentration · 2).
 CREATE OR REPLACE FUNCTION godel.detect_paranoid_interpretation(
--- Purpose: Detect negative interpretation bias with threat attraction.
--- Condition: mean negative bias > threshold and threat pattern concentration > τ.
--- Inputs: manifold_points (coherence, mass), recursive_coupling (as external influence proxy).
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     bias_threshold FLOAT DEFAULT 0.3,
     threat_hyperattractor_threshold FLOAT DEFAULT 0.8
@@ -105,12 +114,18 @@ END;
 $$;
 
 -- Observer Solipsism
---   Criterion: ∥I_ψ[C] - C∥ > τ∥C∥ over recent trajectory
+
+-- Summary: Detect divergence between self interpretation and consensus normalized by field magnitude.
+-- Condition: (E_self_divergence / ||C||) > τ with adequate samples.
+-- Inputs:
+--   - point_id UUID — target point
+--   - divergence_threshold FLOAT — τ (default 0.5)
+--   - time_window INTERVAL — sample horizon (default '8 hours')
+-- Assumptions: Use latest non‑self coherence as baseline consensus; compare over active dimension.
+-- Numerical guards: Require ||C|| > 0.1 and >2 samples; use ε in ratios.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(ratio · consensus_divergence).
 CREATE OR REPLACE FUNCTION godel.detect_observer_solipsism(
--- Purpose: Detect divergence between self-interpretation and consensus.
--- Condition: (mean self divergence)/∥C∥ > τ with adequate samples.
--- Inputs: manifold_points (own/cohort coherence trajectories).
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     divergence_threshold FLOAT DEFAULT 0.5,
     time_window INTERVAL DEFAULT '8 hours'
@@ -204,12 +219,18 @@ END;
 $$;
 
 -- Semantic Narcissism
---   Criterion: self-coupling fraction above threshold with weak external references
+
+-- Summary: Detect dominance of self‑coupling over total coupling mass with weak external references.
+-- Condition: (self_coupling/total) > τ ∧ (external/total) < θ with sufficient references.
+-- Inputs:
+--   - point_id UUID — target point
+--   - self_coupling_threshold FLOAT — τ (default 0.8)
+--   - external_reference_threshold FLOAT — θ (default 0.2)
+-- Assumptions: Sum coupling magnitudes for self vs non‑self within a time horizon.
+-- Numerical guards: Require >3 references; clip severity to [0,1].
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((self/total) · (1 − external/total)).
 CREATE OR REPLACE FUNCTION godel.detect_semantic_narcissism(
--- Purpose: Detect dominance of self-coupling over total coupling mass.
--- Condition: self_coupling/total > τ and external fraction < θ with sufficient refs.
--- Inputs: recursive_coupling joined to `manifold_points` by user.
--- Returns: rows (type,severity∈[0,1],evidence[]).
     point_id UUID,
     self_coupling_threshold FLOAT DEFAULT 0.8,
     external_reference_threshold FLOAT DEFAULT 0.2
