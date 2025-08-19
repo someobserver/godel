@@ -1,6 +1,6 @@
 # GODEL: Geometric Ontology Detecting Emergent Logics
 
-[![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Uses](https://img.shields.io/badge/uses-PostgreSQL%2015%2B-darkgreen.svg)](https://github.com/pgvector/pgvector)
+[![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Uses](https://img.shields.io/badge/uses-PostgreSQL%2017%2B-darkgreen.svg)](https://github.com/pgvector/pgvector)
 
 *GODEL is a geometric field analytics engine for pattern recognition and emergent logic detection in information environments. It does so without ever seeing any raw data.*
 
@@ -13,6 +13,7 @@
   - [For Cybersecurity & UEBA](#for-cybersecurity--ueba)
   - [For Organizations](#for-organizations)
 - [Installation](#installation)
+- [Testing](#testing)
 - [Usage](#usage)
  - [Technical Architecture](#technical-architecture)
  - [Mathematical Framework](#mathematical-framework)
@@ -160,12 +161,48 @@ psql postgresql://godel_user:changeme@localhost:5444/godel_db
 docker compose down
 ```
 
+### Testing
+
+GODEL includes a SQL-native test suite which runs entirely in Postgres. The runner loads the schema, initializes `godel_test`, seeds randomness via `setseed(0.42)`, executes category suites, prints a summary, and tears down by default.
+
+- Run full suite:
+```bash
+psql postgresql://godel_user:changeme@localhost:5444/godel_db -f tests/run_tests.sql
+```
+
+- Run a single category (initialize framework, then run a file):
+```bash
+psql postgresql://godel_user:changeme@localhost:5444/godel_db -f tests/test_framework.sql
+psql postgresql://godel_user:changeme@localhost:5444/godel_db -f tests/signatures/test_rigidity_signatures.sql
+```
+
+- Retain results (optional):
+  - Modify the runner to call `SELECT godel_test.teardown_test_framework(false);`, or run framework + files manually (above) and query `godel_test.test_results`.
+  - To export failures, add `\o tests/results/failed.tsv` before the failure query and `\o`.
+
+- Expected bounds (guidance):
+  - Foundation functions ≤ 1s for ~1k evals
+  - Matrix ops (50×50) ≤ 3s
+  - Single-category detectors ≤ 5s per point
+  - Full `detect_all_signatures` ≤ 10s per point
+  - Coordination (5 nodes) ≤ 5s
+  - Field evolution (single step) ≤ 8s
+
+See `tests/README.md` for layout and assertion APIs.
+
+---
+
 ### Manual Installation
 
 **Requirements:** PostgreSQL 17+ with pgvector 0.8.0+
 
 ```sql
 \i install.sql
+```
+
+**Run test suite (from psql):**
+```sql
+\i tests/run_tests.sql
 ```
 
 ## Usage

@@ -1,21 +1,33 @@
 -- GODEL: Geometric Ontology Detecting Emergent Logics
--- Operational Monitoring: real-time coordination detection, escalation prediction, and field evolution
--- File: 06_operational_monitoring.sql
--- Updated: 2025-08-07
+-- Operational Monitoring: coordination detection, escalation prediction, evolution, and indexes
+-- File: schema/06_operational_monitoring.sql
+-- Updated: 2025-08-19
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Instantiates:
---   - Coordination detection via coupling analysis
---   - Escalation prediction via field dynamics
---   - Coherence field evolution simulation
---   - Performance optimization indexes and views
+-- Purpose: Provide operational analytics, simulation, and monitoring structures.
+-- Exposes:
+--   - Detect coordination via coupling analysis and geometric coherence
+--   - Estimate escalation trajectories via field dynamics
+--   - Evolve coherence fields via geometric/regulatory forces
+--   - Materialize monitoring views and performance indexes
+-- Conventions:
+--   - Use active dimension n=100 for geometric computations
+--   - Score and severity outputs clipped to [0,1]
 
 -- Coordination detection
--- Geometric coupling analysis for suspicious interaction clusters
+
+-- Summary: Cluster cross‑user pairs with high coupling into hourly buckets and score coordination confidence.
+-- Inputs:
+--   - time_window INTERVAL — sample horizon (default '24 hours')
+--   - coupling_threshold FLOAT — minimum coupling (default 0.8)
+--   - min_cluster_size INTEGER — minimum edges (default 3)
+-- Assumptions: Filter pairs by coupling/time; adjust geometric coherence using metric determinant when available.
+-- Score: rft_coordination_confidence = clip(avg(coupling) · avg(geometric_coherence) · (count/10) · (avg_mass/100)).
+-- Returns: TABLE(cluster_id, cluster_size, avg_coupling_strength, geometric_coherence, rft_coordination_confidence, semantic_mass_concentration).
 CREATE OR REPLACE FUNCTION godel.detect_coordination_via_coupling(
     time_window INTERVAL DEFAULT '24 hours',
     coupling_threshold FLOAT DEFAULT 0.8,
@@ -81,7 +93,13 @@ CREATE OR REPLACE FUNCTION godel.detect_coordination_via_coupling(
 $$;
 
 -- Escalation detection
--- Trajectory analysis via coherence acceleration and curvature
+
+-- Summary: Estimate escalation trajectory using coherence acceleration and curvature along a conversation.
+-- Inputs:
+--   - conversation_points UUID[] — ordered ids for a conversation
+-- Assumptions: Compute velocity from distance over time; couple with scalar curvature; use semantic_mass for weighting.
+-- Numerical guards: Ensure time deltas ≥ 1s; default intervention baseline when humility not low.
+-- Returns: TABLE(point_id, coherence_acceleration, semantic_curvature, escalation_trajectory, intervention_urgency).
 CREATE OR REPLACE FUNCTION godel.detect_escalation_via_field_evolution(
     conversation_points UUID[]
 ) RETURNS TABLE (
@@ -140,24 +158,33 @@ END;
 $$;
 
 -- Coherence field evolution
--- Geometric field dynamics with constraint curvature and regulatory forces
+
+-- Summary: Integrate coherence field update under geometric and regulatory forces.
+-- Inputs:
+--   - point_id UUID — target point
+--   - dt FLOAT — integration step (default 0.01)
+-- Terms: dalembertian (covariant second derivative + Ricci term), stability attractor, autopoietic gradient, humility damping.
+-- Assumptions: Active dimension n=100; truncate to VECTOR(2000); compute metric inverse each step.
+-- Numerical guards: Use finite differences with h=1e-6; apply diagonal mass term; clip indices to available length.
+-- Returns: VECTOR(2000) — updated field.
 CREATE OR REPLACE FUNCTION godel.evolve_coherence_field_complete(
     point_id UUID,
     dt FLOAT DEFAULT 0.01
 ) RETURNS VECTOR(2000) LANGUAGE plpgsql AS $$
 DECLARE
     current_coherence VECTOR(2000);
-    new_coherence VECTOR(2000);
+    arr_current FLOAT[];
+    arr_new FLOAT[];
     metric_tensor FLOAT[];
     metric_inverse FLOAT[];
     christoffel_symbols FLOAT[];
     semantic_mass FLOAT;
     
     -- Field evolution terms
-    dalembertian VECTOR(2000);
-    attractor_gradient VECTOR(2000);
-    autopoietic_gradient VECTOR(2000);
-    humility_constraint VECTOR(2000);
+    arr_dalembertian FLOAT[];
+    arr_attractor_gradient FLOAT[];
+    arr_autopoietic_gradient FLOAT[];
+    arr_humility_constraint FLOAT[];
     
     -- Geometric computation variables
     second_covariant_deriv FLOAT;
@@ -169,94 +196,118 @@ DECLARE
     k INTEGER;
     coherence_mag FLOAT;
     h FLOAT := 1e-6;  -- Finite difference step
+    -- Performance locals (do not change math)
+    arr_len INTEGER;
+    n INTEGER;
+    metric_len INTEGER;
+    christoffel_len INTEGER;
+    metric_idx INTEGER;
+    christoffel_idx INTEGER;
+    connection_correction FLOAT;
+    l INTEGER;
+    val_i FLOAT;
+    arr_delta FLOAT[];
+    second_covariant_total FLOAT;
 BEGIN
-    SELECT coherence_field, metric_tensor, christoffel_symbols, semantic_mass
+    SELECT mp.coherence_field, mp.metric_tensor, mp.christoffel_symbols, mp.semantic_mass
     INTO current_coherence, metric_tensor, christoffel_symbols, semantic_mass
-    FROM godel.manifold_points WHERE id = point_id;
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     IF current_coherence IS NULL THEN
         RETURN ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
     END IF;
     
+    -- Convert vector to array once for element-wise access
+    arr_current := godel.vector_to_real_array(current_coherence);
+    arr_len := COALESCE(array_length(arr_current, 1), 0);
+    n := LEAST(dim, GREATEST(arr_len, 1));
+
     -- Compute metric inverse
     metric_inverse := godel.compute_metric_inverse(metric_tensor, dim);
+    metric_len := COALESCE(array_length(metric_inverse, 1), 0);
+    christoffel_len := COALESCE(array_length(christoffel_symbols, 1), 0);
     
     -- Compute coherence magnitude
-    coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) FROM generate_series(1, LEAST(dim, 2000)) i)));
+    coherence_mag := COALESCE(
+        (SELECT coherence_magnitude FROM godel.manifold_points WHERE id = point_id),
+        COALESCE(public.vector_norm(current_coherence), 0.0)
+    );
     
     -- Initialize evolution terms
-    dalembertian := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
-    attractor_gradient := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
-    autopoietic_gradient := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
-    humility_constraint := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
+    arr_dalembertian := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
+    arr_attractor_gradient := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
+    arr_autopoietic_gradient := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
+    arr_humility_constraint := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
+    
+    -- Precompute finite-difference deltas once
+    arr_delta := ARRAY(SELECT 0.0 FROM generate_series(1, n));
+    FOR l IN 1..n LOOP
+        arr_delta[l] := (
+            arr_current[LEAST(l, arr_len)] - 
+            COALESCE(arr_current[GREATEST(l-1, 1)], 0.0)
+        ) / h;
+    END LOOP;
     
     -- Field propagation with constraint curvature effects
-    FOR i IN 1..LEAST(dim, 2000) LOOP
-        second_covariant_deriv := 0.0;
-        
+    -- Hoist i-invariant covariant contribution
+    second_covariant_total := 0.0;
+    IF metric_len > 0 AND christoffel_len > 0 THEN
         FOR j IN 1..dim LOOP
             FOR k IN 1..dim LOOP
-                DECLARE
-                    metric_idx INTEGER := (j-1)*dim + k;
-                    christoffel_idx INTEGER;
-                    connection_correction FLOAT := 0.0;
-                    l INTEGER;
-                BEGIN
-                    FOR l IN 1..dim LOOP
-                        christoffel_idx := (j-1)*dim*dim + (k-1)*dim + l;
-                        IF christoffel_idx <= array_length(christoffel_symbols, 1) THEN
-                            connection_correction := connection_correction - 
-                                christoffel_symbols[christoffel_idx] * 
-                                (current_coherence[LEAST(l, 2000)] - 
-                                 COALESCE(current_coherence[GREATEST(l-1, 1)], 0.0)) / h;
-                        END IF;
-                    END LOOP;
-                    
-                    IF metric_idx <= array_length(metric_inverse, 1) THEN
-                        second_covariant_deriv := second_covariant_deriv + 
-                            metric_inverse[metric_idx] * connection_correction;
+                metric_idx := (j-1)*dim + k;
+                connection_correction := 0.0;
+                FOR l IN 1..n LOOP
+                    christoffel_idx := (j-1)*dim*dim + (k-1)*dim + l;
+                    IF christoffel_idx <= christoffel_len THEN
+                        connection_correction := connection_correction - 
+                            christoffel_symbols[christoffel_idx] * arr_delta[l];
                     END IF;
-                END;
+                END LOOP;
+                IF metric_idx <= metric_len THEN
+                    second_covariant_total := second_covariant_total + 
+                        metric_inverse[metric_idx] * connection_correction;
+                END IF;
             END LOOP;
         END LOOP;
-        
-        -- Semantic mass gravitational effects
-        ricci_coupling_term := 0.0;
-        FOR j IN 1..dim LOOP
-            IF i = j THEN
-                ricci_coupling_term := ricci_coupling_term - semantic_mass * current_coherence[LEAST(j, 2000)];
-            END IF;
-        END LOOP;
-        
-        dalembertian[i] := second_covariant_deriv + ricci_coupling_term;
+    END IF;
+
+    FOR i IN 1..LEAST(dim, 2000) LOOP
+        -- Semantic mass gravitational effects (diagonal)
+        ricci_coupling_term := - semantic_mass * arr_current[LEAST(i, GREATEST(arr_len, 1))];
+        arr_dalembertian[i] := second_covariant_total + ricci_coupling_term;
     END LOOP;
     
     -- Stability attractor forces
     FOR i IN 1..LEAST(dim, 2000) LOOP
-        attractor_gradient[i] := -(coherence_mag - 0.7) * current_coherence[i] / (coherence_mag + 1e-10);
+        val_i := arr_current[LEAST(i, GREATEST(arr_len, 1))];
+        arr_attractor_gradient[i] := -(coherence_mag - 0.7) * val_i / (coherence_mag + 1e-10);
     END LOOP;
     
     -- Autopoietic potential above coherence threshold
     IF coherence_mag >= 0.7 THEN
         FOR i IN 1..LEAST(dim, 2000) LOOP
-            autopoietic_gradient[i] := 2.0 * (coherence_mag - 0.7) * current_coherence[i] / (coherence_mag + 1e-10);
+            val_i := arr_current[LEAST(i, GREATEST(arr_len, 1))];
+            arr_autopoietic_gradient[i] := 2.0 * (coherence_mag - 0.7) * val_i / (coherence_mag + 1e-10);
         END LOOP;
     END IF;
     
     -- Humility constraint damping
     FOR i IN 1..LEAST(dim, 2000) LOOP
-        humility_constraint[i] := -0.1 * coherence_mag * current_coherence[i];
+        val_i := arr_current[LEAST(i, GREATEST(arr_len, 1))];
+        arr_humility_constraint[i] := -0.1 * coherence_mag * val_i;
     END LOOP;
     
     -- Integrate all evolution forces
-    new_coherence := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
+    arr_new := ARRAY(SELECT 0.0::REAL FROM generate_series(1, 2000));
     FOR i IN 1..LEAST(dim, 2000) LOOP
-        new_coherence[i] := current_coherence[i] + dt * (
-            dalembertian[i] + attractor_gradient[i] + autopoietic_gradient[i] + humility_constraint[i]
-        );
+        val_i := arr_current[LEAST(i, GREATEST(arr_len, 1))];
+        arr_new[i] := 
+            val_i + dt * (
+                arr_dalembertian[i] + arr_attractor_gradient[i] + arr_autopoietic_gradient[i] + arr_humility_constraint[i]
+            );
     END LOOP;
     
-    RETURN new_coherence;
+    RETURN arr_new::vector(2000);
 END;
 $$;
 
@@ -280,7 +331,8 @@ $$;
 
 -- Operational monitoring views
 
-CREATE VIEW godel.coordination_alerts AS
+-- Summary: Materialize coordination alerts by severity and priority.
+CREATE OR REPLACE VIEW godel.coordination_alerts AS
 SELECT 
     cluster_id,
     cluster_size,
@@ -297,6 +349,14 @@ SELECT
 FROM godel.detect_coordination_via_coupling()
 WHERE rft_coordination_confidence > 0.5;
 
+DO $$ BEGIN
+    PERFORM 1 FROM pg_matviews WHERE schemaname = 'godel' AND matviewname = 'geometric_alerts_mv';
+    IF FOUND THEN
+        EXECUTE 'DROP MATERIALIZED VIEW IF EXISTS godel.geometric_alerts_mv';
+    END IF;
+END $$;
+
+-- Summary: Materialize geometric alerts within the last 24 hours by severity and priority.
 CREATE MATERIALIZED VIEW godel.geometric_alerts_mv AS
 SELECT 
     mp.id as point_id,
@@ -330,7 +390,7 @@ RETURNS void LANGUAGE SQL AS $$
     REFRESH MATERIALIZED VIEW godel.geometric_alerts_mv;
 $$;
 
--- Performance optimization indices
+-- Performance optimization indexes
 
 CREATE INDEX IF NOT EXISTS idx_manifold_points_semantic_field
     ON godel.manifold_points USING hnsw (semantic_field vector_cosine_ops);

@@ -1,20 +1,34 @@
 -- GODEL: Geometric Ontology Detecting Emergent Logics
 -- Inflation Signatures: runaway autopoiesis detection
--- File: 04_inflation_signatures.sql
--- Updated: 2025-08-07
+-- File: schema/04_inflation_signatures.sql
+-- Updated: 2025-08-19
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Instantiates:
---   - Delusional Expansion: Φ(C) >> V(C), H[R] ≈ 0, W(p,t) < W_min
---   - Semantic Hypercoherence: C(p,t) > C_max, ∮F_i·dS^i < F_leakage
---   - Recurgent Parasitism: Local mass growth at expense of broader ecology
+-- Purpose: Detect runaway autopoiesis where self‑reinforcement overcomes constraint/feedback.
+-- Exposes:
+--   - Detect Delusional Expansion: Φ(C) dominates constraining force with low humility and wisdom
+--   - Detect Semantic Hypercoherence: coherence saturation with low external influence flux
+--   - Detect Recurgent Parasitism: local mass growth concurrent with ecological drain
+-- Conventions:
+--   - Return tables include (signature_type, severity ∈ [0,1], geometric_signature[], mathematical_evidence)
 
 -- Delusional Expansion
--- Signature: Φ(C) >> V(C), H[R] ≈ 0, W(p,t) < W_min
+
+-- Summary: Detect runaway autopoiesis unanchored by constraint, humility, and wisdom.
+-- Condition: Φ(C) > α·constraining_force ∧ humility < θ_H ∧ wisdom < θ_W.
+-- Inputs:
+--   - point_id UUID — target point
+--   - autopoietic_threshold FLOAT — α (default 5.0)
+--   - humility_threshold FLOAT — θ_H (default 0.1)
+--   - wisdom_threshold FLOAT — θ_W (default 0.2)
+-- Assumptions: Compute Φ via compute_autopoietic_potential with C_thr≈0.7; constrain force via |C−C_thr|.
+-- Numerical guards: Use ε in denominators; bound exponents elsewhere.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((Φ/force)·(1−H)·(1−W)/20).
 CREATE OR REPLACE FUNCTION godel.detect_delusional_expansion(
     point_id UUID,
     autopoietic_threshold FLOAT DEFAULT 5.0,
@@ -42,18 +56,20 @@ BEGIN
     INTO current_coherence, semantic_mass
     FROM godel.manifold_points mp WHERE mp.id = point_id;
     
-    SELECT wisdom_value, humility_factor
+    SELECT wf.wisdom_value, wf.humility_factor
     INTO wisdom_value, humility_factor
-    FROM godel.wisdom_field
-    WHERE point_id = detect_delusional_expansion.point_id
-    ORDER BY computed_at DESC LIMIT 1;
+    FROM godel.wisdom_field wf
+    WHERE wf.point_id = detect_delusional_expansion.point_id
+    ORDER BY wf.computed_at DESC LIMIT 1;
     
     IF current_coherence IS NULL THEN
         RETURN;
     END IF;
     
-    coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) 
-                              FROM generate_series(1, LEAST(100, 2000)) i)));
+    coherence_mag := COALESCE(
+        (SELECT coherence_magnitude FROM godel.manifold_points WHERE id = point_id),
+        CASE WHEN current_coherence IS NOT NULL THEN COALESCE(public.vector_norm(current_coherence), 0.0) ELSE 0.0 END
+    );
     
     autopoietic_potential := godel.compute_autopoietic_potential(coherence_mag);
     
@@ -72,8 +88,13 @@ BEGIN
             'DELUSIONAL_EXPANSION'::TEXT,
             LEAST(1.0, expansion_signature / 20.0),
             ARRAY[autopoietic_potential, constraining_force, COALESCE(humility_factor, 0.0), COALESCE(wisdom_value, 0.0)],
-            format('Autopoietic potential: %.3f >> constraining force: %.3f, humility: %.3f ≈ 0, wisdom: %.3f < threshold', 
-                   autopoietic_potential, constraining_force, COALESCE(humility_factor, 0.0), COALESCE(wisdom_value, 0.0));
+            format(
+                'Autopoietic potential: %s >> constraining force: %s, humility: %s ≈ 0, wisdom: %s < threshold',
+                to_char(autopoietic_potential::numeric, 'FM999990.000'),
+                to_char(constraining_force::numeric, 'FM999990.000'),
+                to_char(COALESCE(humility_factor, 0.0)::numeric, 'FM999990.000'),
+                to_char(COALESCE(wisdom_value, 0.0)::numeric, 'FM999990.000')
+            );
     END IF;
     
     RETURN;
@@ -81,7 +102,18 @@ END;
 $$;
 
 -- Semantic Hypercoherence
--- Signature: C(p,t) > C_max, ∮F_i·dS^i < F_leakage
+
+-- Summary: Detect coherence saturation with low external influence flux.
+-- Condition: C_mag > C_max ∧ mean external_influence_flux < θ_leak.
+-- Inputs:
+--   - point_id UUID — target point
+--   - coherence_max_threshold FLOAT — C_max (default 0.95)
+--   - leakage_threshold FLOAT — θ_leak (default 0.1)
+--   - time_window INTERVAL — horizon (default '4 hours')
+-- Assumptions: Estimate permeability via coupling magnitudes × external mass; average over window.
+-- Numerical guards: Require samples > 0; compute C_mag over active dimension.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(C_mag · (1 − flux)).
 CREATE OR REPLACE FUNCTION godel.detect_semantic_hypercoherence(
     point_id UUID,
     coherence_max_threshold FLOAT DEFAULT 0.95,
@@ -113,8 +145,10 @@ BEGIN
         RETURN;
     END IF;
     
-    coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) 
-                              FROM generate_series(1, LEAST(100, 2000)) i)));
+    coherence_mag := COALESCE(
+        public.vector_norm(public.subvector(current_coherence, 1, godel.get_active_dimension())),
+        0.0
+    );
     
     IF coherence_mag > coherence_max_threshold THEN
         FOR rec IN (
@@ -144,8 +178,12 @@ BEGIN
                 'SEMANTIC_HYPERCOHERENCE'::TEXT,
                 LEAST(1.0, hypercoherence_signature),
                 ARRAY[coherence_mag, external_influence_flux, boundary_permeability, sample_count::FLOAT],
-                format('Coherence: %.3f > max threshold, boundary flux: %.3f < leakage threshold (samples: %s)', 
-                       coherence_mag, external_influence_flux, sample_count);
+                format(
+                    'Coherence: %s > max threshold, boundary flux: %s < leakage threshold (samples: %s)',
+                    to_char(coherence_mag::numeric, 'FM999990.000'),
+                    to_char(external_influence_flux::numeric, 'FM999990.000'),
+                    sample_count
+                );
         END IF;
     END IF;
     
@@ -154,7 +192,18 @@ END;
 $$;
 
 -- Recurgent Parasitism
--- Signature: d/dt∫_Ω M(p,t) dV > 0, d/dt∫_{M\Ω} M(p,t) dV < 0
+
+-- Summary: Detect local mass growth concurrent with ecological drain.
+-- Condition: local_growth_rate > τ ∧ ecological_drain_rate < θ over window.
+-- Inputs:
+--   - point_id UUID — target point
+--   - growth_threshold FLOAT — τ (default 0.5)
+--   - ecological_drain_threshold FLOAT — θ (default -0.2)
+--   - time_window INTERVAL — horizon (default '6 hours')
+-- Assumptions: Compare user-local mass trend vs average non‑local trend over time buckets.
+-- Numerical guards: Require >2 samples in each series; average before differencing.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(local_growth · |drain| · 5).
 CREATE OR REPLACE FUNCTION godel.detect_recurgent_parasitism(
     point_id UUID,
     growth_threshold FLOAT DEFAULT 0.5,
@@ -168,7 +217,7 @@ CREATE OR REPLACE FUNCTION godel.detect_recurgent_parasitism(
 ) LANGUAGE plpgsql AS $$
 DECLARE
     current_semantic_mass FLOAT;
-    user_fingerprint TEXT;
+    local_user_fingerprint TEXT;
     
     local_growth_rate FLOAT := 0.0;
     ecological_drain_rate FLOAT := 0.0;
@@ -179,9 +228,9 @@ DECLARE
     
     rec RECORD;
 BEGIN
-    SELECT semantic_mass, user_fingerprint
-    INTO current_semantic_mass, user_fingerprint
-    FROM godel.manifold_points WHERE id = point_id;
+    SELECT mp.semantic_mass, mp.user_fingerprint
+    INTO current_semantic_mass, local_user_fingerprint
+    FROM godel.manifold_points mp WHERE mp.id = point_id;
     
     IF current_semantic_mass IS NULL THEN
         RETURN;
@@ -189,7 +238,7 @@ BEGIN
     FOR rec IN (
         SELECT mp.semantic_mass, mp.creation_timestamp
         FROM godel.manifold_points mp
-        WHERE mp.user_fingerprint = detect_recurgent_parasitism.user_fingerprint
+        WHERE mp.user_fingerprint = local_user_fingerprint
         AND mp.creation_timestamp >= NOW() - time_window
         ORDER BY mp.creation_timestamp
     ) LOOP
@@ -204,7 +253,7 @@ BEGIN
     FOR rec IN (
         SELECT AVG(mp.semantic_mass) as avg_mass, mp.creation_timestamp
         FROM godel.manifold_points mp
-        WHERE mp.user_fingerprint != detect_recurgent_parasitism.user_fingerprint
+        WHERE mp.user_fingerprint != local_user_fingerprint
         AND mp.creation_timestamp >= NOW() - time_window
         GROUP BY mp.creation_timestamp
         ORDER BY mp.creation_timestamp
@@ -230,8 +279,11 @@ BEGIN
                 'RECURGENT_PARASITISM'::TEXT,
                 LEAST(1.0, parasitism_signature * 5.0),
                 ARRAY[local_growth_rate, ecological_drain_rate, local_samples::FLOAT, ecological_samples::FLOAT],
-                format('Local growth: %.3f > threshold while ecological impact: %.3f < drain threshold', 
-                       local_growth_rate, ecological_drain_rate);
+                format(
+                    'Local growth: %s > threshold while ecological impact: %s < drain threshold',
+                    to_char(local_growth_rate::numeric, 'FM999990.000'),
+                    to_char(ecological_drain_rate::numeric, 'FM999990.000')
+                );
         END IF;
     END IF;
     

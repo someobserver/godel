@@ -1,20 +1,34 @@
 -- GODEL: Geometric Ontology Detecting Emergent Logics
 -- Rigidity Signatures: over-constraint detection
--- File: 02_rigidity_signatures.sql
--- Updated: 2025-08-07
+-- File: schema/02_rigidity_signatures.sql
+-- Updated: 2025-08-19
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Instantiates:
---   - Attractor Dogmatism: A(p,t) > A_crit AND ||∇V(C)|| >> Φ(C)
---   - Belief Calcification: lim(ε→0) dC/dt|C+ε ≈ 0
---   - Metric Crystallization: ∂g_ij/∂t → 0 while R_ij ≠ 0
+-- Purpose: Detect over‑constraint failure modes in the constraint geometry.
+-- Exposes:
+--   - Detect Attractor Dogmatism: constraining force dominates generative potential
+--   - Detect Belief Calcification: low response rate under pressure
+--   - Detect Metric Crystallization: ∂g/∂t → 0 with persistent curvature
+-- Conventions:
+--   - Return tables include (signature_type, severity ∈ [0,1], geometric_signature[], mathematical_evidence)
+--   - Use stored coherence_magnitude when present; else compute over active dimension
 
 -- Attractor Dogmatism
--- Signature: A(p,t) > A_crit AND ||∇V(C)|| >> Φ(C)
+
+-- Summary: Detect over‑constraint where attractor stability and constraining force dominate generative potential.
+-- Condition: A > A_crit ∧ ((|C−C_thr| · C_mag)/Φ(C)) > τ, guarding Φ(C)=0 with ε.
+-- Inputs:
+--   - point_id UUID — target point
+--   - attractor_threshold FLOAT — A_crit (default 0.8)
+--   - force_ratio_threshold FLOAT — τ (default 3.0)
+-- Assumptions: Prefer stored coherence_magnitude else compute over active dimension.
+-- Numerical guards: Use ε=1e-10 when Φ(C)=0 to avoid division by zero.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((constraining_force/Φ(C))/10).
 CREATE OR REPLACE FUNCTION godel.detect_attractor_dogmatism(
     point_id UUID,
     attractor_threshold FLOAT DEFAULT 0.8,
@@ -43,8 +57,11 @@ BEGIN
         RETURN;
     END IF;
     
-    coherence_mag := sqrt(sum((SELECT pow(current_coherence[i], 2) 
-                              FROM generate_series(1, LEAST(100, 2000)) i)));
+    -- Use stored magnitude if available; else compute via helper
+    coherence_mag := COALESCE(
+        (SELECT coherence_magnitude FROM godel.manifold_points WHERE id = point_id),
+        CASE WHEN current_coherence IS NOT NULL THEN COALESCE(public.vector_norm(current_coherence), 0.0) ELSE 0.0 END
+    );
     
     IF attractor_stability > attractor_threshold AND coherence_mag > 0.7 THEN
         autopoietic_potential := godel.compute_autopoietic_potential(
@@ -64,8 +81,13 @@ BEGIN
                 'ATTRACTOR_DOGMATISM'::TEXT,
                 LEAST(1.0, force_ratio / 10.0),
                 ARRAY[attractor_stability, coherence_mag, constraining_force, autopoietic_potential],
-                format('Attractor stability: %.3f > threshold, constraining force: %.3f >> generative potential: %.3f (ratio: %.1f)', 
-                       attractor_stability, constraining_force, autopoietic_potential, force_ratio);
+                format(
+                    'Attractor stability: %s > threshold, constraining force: %s >> generative potential: %s (ratio: %s)',
+                    to_char(attractor_stability::numeric, 'FM999990.000'),
+                    to_char(constraining_force::numeric, 'FM999990.000'),
+                    to_char(autopoietic_potential::numeric, 'FM999990.000'),
+                    to_char(force_ratio::numeric, 'FM999990.0')
+                );
         END IF;
     END IF;
     
@@ -74,7 +96,17 @@ END;
 $$;
 
 -- Belief Calcification
--- Signature: lim(ε→0) dC/dt|C+ε ≈ 0
+
+-- Summary: Detect low responsiveness of coherence under nontrivial external pressure.
+-- Condition: mean ΔC over window < ε ∧ avg semantic_mass > θ.
+-- Inputs:
+--   - point_id UUID — target point
+--   - responsiveness_threshold FLOAT — ε (default 0.01)
+--   - time_window INTERVAL — horizon (default '6 hours')
+-- Assumptions: Use conversation-local trajectory over window; external pressure proxied by semantic_mass.
+-- Numerical guards: Use ε=1e-10 in ratios; require >1 sample.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip(responsiveness_failure/50).
 CREATE OR REPLACE FUNCTION godel.detect_belief_calcification(
     point_id UUID,
     responsiveness_threshold FLOAT DEFAULT 0.01,
@@ -101,10 +133,10 @@ BEGIN
     INTO current_coherence, semantic_mass
     FROM godel.manifold_points mp WHERE mp.id = point_id;
     
-    SELECT wisdom_value INTO wisdom_value
-    FROM godel.wisdom_field
-    WHERE point_id = detect_belief_calcification.point_id
-    ORDER BY computed_at DESC LIMIT 1;
+    SELECT wf.wisdom_value INTO wisdom_value
+    FROM godel.wisdom_field wf
+    WHERE wf.point_id = detect_belief_calcification.point_id
+    ORDER BY wf.computed_at DESC LIMIT 1;
     
     IF current_coherence IS NULL THEN
         RETURN;
@@ -139,8 +171,12 @@ BEGIN
                 'BELIEF_CALCIFICATION'::TEXT,
                 LEAST(1.0, responsiveness_failure / 50.0),
                 ARRAY[coherence_change_rate, avg_external_pressure, COALESCE(wisdom_value, 0.0), semantic_mass],
-                format('Coherence response rate: %.6f ≈ 0 despite external pressure: %.3f (samples: %s)', 
-                       coherence_change_rate, avg_external_pressure, num_samples);
+                format(
+                    'Coherence response rate: %s ≈ 0 despite external pressure: %s (samples: %s)',
+                    to_char(coherence_change_rate::numeric, 'FM999990.000000'),
+                    to_char(avg_external_pressure::numeric, 'FM999990.000'),
+                    num_samples
+                );
         END IF;
     END IF;
     
@@ -149,7 +185,17 @@ END;
 $$;
 
 -- Metric Crystallization
--- Signature: ∂g_ij/∂t → 0 while R_ij ≠ 0
+
+-- Summary: Detect static metric evolution with persistent curvature pressure.
+-- Condition: evolution_rate < ε ∧ mean |R| > κ.
+-- Inputs:
+--   - point_id UUID — target point
+--   - evolution_threshold FLOAT — ε (default 0.01)
+--   - curvature_threshold FLOAT — κ (default 0.1)
+-- Assumptions: Estimate evolution rate from |semantic_mass|; average |R| over active dimension.
+-- Numerical guards: Use ε in ratios; handle NULL curvature arrays.
+-- Returns: TABLE(signature_type, severity ∈ [0,1], geometric_signature FLOAT[], mathematical_evidence TEXT).
+-- Severity scaling: severity = clip((curvature_pressure/(evolution_rate+ε))/100).
 CREATE OR REPLACE FUNCTION godel.detect_metric_crystallization(
     point_id UUID,
     evolution_threshold FLOAT DEFAULT 0.01,
@@ -196,8 +242,12 @@ BEGIN
             'METRIC_CRYSTALLIZATION'::TEXT,
             LEAST(1.0, crystallization_signature / 100.0),
             ARRAY[metric_evolution_rate, curvature_pressure, semantic_mass],
-            format('Constraint evolution rate: %.6f → 0 while curvature pressure: %.3f ≠ 0 (ratio: %.1f)', 
-                   metric_evolution_rate, curvature_pressure, crystallization_signature);
+            format(
+                'Constraint evolution rate: %s → 0 while curvature pressure: %s ≠ 0 (ratio: %s)',
+                to_char(metric_evolution_rate::numeric, 'FM999990.000000'),
+                to_char(curvature_pressure::numeric, 'FM999990.000'),
+                to_char(crystallization_signature::numeric, 'FM999990.0')
+            );
     END IF;
     
     RETURN;
