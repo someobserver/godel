@@ -1,24 +1,26 @@
 -- GODEL: Geometric Ontology Detecting Emergent Logics
--- Geometric Analysis
--- File: 01_geometric_analysis.sql
--- Updated: 2025-08-07
+-- Geometric Analysis: differential geometry and coupling primitives
+-- File: schema/01_geometric_analysis.sql
+-- Updated: 2025-08-19
 --
 -- Copyright 2025 Inside The Black Box LLC
 -- Licensed under MIT License
 -- 
 -- SPDX-License-Identifier: MIT
 
--- Instantiates:
---   - Christoffel symbols
---   - Covariant derivatives 
---   - Metric tensor operations
---   - Ricci curvature calculations
+-- Provides
+--   - Christoffel symbols, covariant derivatives
+--   - Metric tensor/inverse, curvature (Ricci, scalar)
 --   - Geodesic distance integration
---   - Recursive coupling tensors
+--   - Recursive coupling tensor
 
--- Geometric operations
+-- Geometric operators
 
--- Christoffel symbols: Γᵏᵢⱼ = ½gᵏˡ(∂ᵢgⱼˡ + ∂ⱼgᵢˡ - ∂ˡgᵢⱼ)
+-- Purpose: Compute Christoffel symbols from metric and metric derivatives.
+-- Math: Γ^k_{ij} = ½ g^{kl}(∂_i g_{jl} + ∂_j g_{il} - ∂_l g_{ij}).
+-- Assumptions: dimension=n; metric inverse via compute_metric_inverse; flattened row-major arrays.
+-- Numerical: metric inversion regularized in compute_metric_inverse to avoid singularities.
+-- Returns: flattened 3-tensor (size n^3) in row-major order.
 CREATE OR REPLACE FUNCTION godel.compute_christoffel_symbols(
     metric_components FLOAT[],
     metric_derivatives FLOAT[][],
@@ -56,7 +58,11 @@ BEGIN
 END;
 $$;
 
--- Covariant derivative: ∇ᵢVⱼ = ∂ᵢVⱼ - ΓᵏᵢⱼVₖ
+-- Purpose: Evaluate covariant derivative component for a vector-like field.
+-- Math: ∇_i V_j = ∂_i V_j − Γ^k_{ij} V_k.
+-- Assumptions: field provided as VECTOR(2000) and truncated to active dimension.
+-- Numerical: guards index access via array length; uses flattened Γ indexing.
+-- Returns: scalar component (FLOAT).
 CREATE OR REPLACE FUNCTION godel.covariant_derivative(
     field_components VECTOR(2000),
     field_derivatives FLOAT[][],
@@ -69,12 +75,15 @@ DECLARE
     result FLOAT := 0.0;
     k INTEGER;
     gamma_idx INTEGER;
+    arr_field FLOAT[];
 BEGIN
     result := field_derivatives[i_index][j_index];
+    arr_field := godel.vector_to_real_array(field_components);
     
     FOR k IN 1..dimension LOOP
         gamma_idx := (k-1) * dimension * dimension + (i_index-1) * dimension + j_index;
-        result := result - christoffel_symbols[gamma_idx] * field_components[k];
+        result := result - christoffel_symbols[gamma_idx] * 
+                  arr_field[LEAST(k, GREATEST(COALESCE(array_length(arr_field, 1), 0), 1))];
     END LOOP;
     
     RETURN result;
@@ -83,7 +92,11 @@ $$;
 
 -- Metric tensors
 
--- Build metric tensor gᵢⱼ from semantic field gradients
+-- Purpose: Heuristic construction of metric tensor from local field differences.
+-- Math: g_ij ≈ ⟨∇_i C, ∇_j C⟩ + base_metric_scale · δ_ij.
+-- Assumptions: uses two neighboring fields; symmetric storage; n=100 active dims.
+-- Numerical: adds diagonal regularization via base_metric_scale.
+-- Returns: flattened symmetric matrix (size n^2) with upper-triangular fill applied symmetrically.
 CREATE OR REPLACE FUNCTION godel.compute_metric_tensor_from_semantic_field(
     semantic_field VECTOR(2000),
     neighboring_fields VECTOR(2000)[],
@@ -98,26 +111,43 @@ DECLARE
     grad_i FLOAT[];
     grad_j FLOAT[];
     inner_product FLOAT;
+    arr_nb1 FLOAT[];
+    arr_nb2 FLOAT[];
+    len_nb1 INTEGER;
+    len_nb2 INTEGER;
 BEGIN
     metric_components := ARRAY(SELECT 0.0 FROM generate_series(1, n_dims * n_dims));
     
+    IF array_length(neighboring_fields, 1) >= 2 THEN
+        arr_nb1 := godel.vector_to_real_array(neighboring_fields[1]);
+        arr_nb2 := godel.vector_to_real_array(neighboring_fields[2]);
+        len_nb1 := COALESCE(array_length(arr_nb1, 1), 0);
+        len_nb2 := COALESCE(array_length(arr_nb2, 1), 0);
+    END IF;
+
     FOR i IN 1..n_dims LOOP
         grad_i := ARRAY(SELECT 0.0 FROM generate_series(1, n_dims));
         
-        IF array_length(neighboring_fields, 1) >= 2 THEN
-            FOR k IN 1..LEAST(n_dims, 2000) LOOP
-                grad_i[LEAST(k, n_dims)] := 
-                    (neighboring_fields[2][k] - neighboring_fields[1][k]) / 2.0;
+        IF arr_nb1 IS NOT NULL AND arr_nb2 IS NOT NULL THEN
+            FOR k IN 1..n_dims LOOP
+                grad_i[k] := 
+                    (
+                        COALESCE(arr_nb2[LEAST(k, GREATEST(len_nb2, 1))], 0.0) -
+                        COALESCE(arr_nb1[LEAST(k, GREATEST(len_nb1, 1))], 0.0)
+                    ) * 0.5;
             END LOOP;
         END IF;
         
         FOR j IN i..n_dims LOOP
             grad_j := ARRAY(SELECT 0.0 FROM generate_series(1, n_dims));
             
-            IF array_length(neighboring_fields, 1) >= 2 THEN
-                FOR k IN 1..LEAST(n_dims, 2000) LOOP
-                    grad_j[LEAST(k, n_dims)] := 
-                        (neighboring_fields[2][k] - neighboring_fields[1][k]) / 2.0;
+            IF arr_nb1 IS NOT NULL AND arr_nb2 IS NOT NULL THEN
+                FOR k IN 1..n_dims LOOP
+                    grad_j[k] := 
+                        (
+                            COALESCE(arr_nb2[LEAST(k, GREATEST(len_nb2, 1))], 0.0) -
+                            COALESCE(arr_nb1[LEAST(k, GREATEST(len_nb1, 1))], 0.0)
+                        ) * 0.5;
                 END LOOP;
             END IF;
             
@@ -136,7 +166,11 @@ BEGIN
 END;
 $$;
 
--- Metric inverse: gᵢʲ such that gᵢₖgᵏʲ = δᵢʲ
+-- Purpose: Compute inverse metric from symmetric metric components.
+-- Math: g^{-1} via Gauss–Jordan; det regularization if |det g| < ε.
+-- Assumptions: symmetric input stored in flattened form; expanded to full n×n.
+-- Numerical: adds 1e-6 to diagonal when near-singular; uses matrix_determinant/inverse.
+-- Returns: flattened full inverse (size n^2).
 CREATE OR REPLACE FUNCTION godel.compute_metric_inverse(
     metric_components FLOAT[],
     dimension INTEGER DEFAULT 100
@@ -189,9 +223,11 @@ BEGIN
 END;
 $$;
 
--- Linear algebra
+-- Linear algebra utilities
 
--- Matrix determinant w/ partial pivoting
+-- Purpose: Determinant via LU-style elimination with partial pivoting.
+-- Numerical: pivoting for stability; ε=1e-12 guard returns 0 for near-singular matrices.
+-- Complexity: O(n^3).
 CREATE OR REPLACE FUNCTION godel.matrix_determinant(
     matrix FLOAT[][],
     n INTEGER
@@ -246,7 +282,9 @@ BEGIN
 END;
 $$;
 
--- Gauss-Jordan matrix inversion
+-- Purpose: Invert matrix using Gauss–Jordan elimination on an augmented system.
+-- Numerical: raises on singular pivot (< 1e-12); row operations normalized per pivot.
+-- Complexity: O(n^3).
 CREATE OR REPLACE FUNCTION godel.matrix_inverse_gauss_jordan(
     matrix FLOAT[][],
     n INTEGER
@@ -300,7 +338,11 @@ $$;
 
 -- Curvature calculations
 
--- Ricci curvature: Rᵢⱼ = ∂ₖΓᵏᵢⱼ - ∂ⱼΓᵏᵢₖ + ΓˡᵢⱼΓᵏₖₗ - ΓˡᵢₖΓᵏⱼₗ
+-- Purpose: Compute Ricci curvature components from Γ and ∂Γ contractions.
+-- Math: R_ij = ∂_k Γ^k_{ij} − ∂_j Γ^k_{ik} + Γ^l_{ij}Γ^k_{kl} − Γ^l_{ik}Γ^k_{jl}.
+-- Assumptions: flattened indexing for Γ and ∂Γ; dimension=n.
+-- Numerical: tolerant to NULL ∂Γ by skipping derivative terms.
+-- Returns: flattened n×n Ricci matrix.
 CREATE OR REPLACE FUNCTION godel.compute_ricci_curvature(
     christoffel_symbols FLOAT[],
     christoffel_derivatives FLOAT[][][],
@@ -355,6 +397,9 @@ $$;
 
 -- Scalar curvature
 CREATE OR REPLACE FUNCTION godel.compute_scalar_curvature(
+-- Purpose: Scalar curvature R via contraction g^{ij} R_{ij}.
+-- Math: R = Σ_{ij} g^{ij} R_{ij} using flattened arrays.
+-- Returns: scalar (FLOAT).
     ricci_components FLOAT[],
     metric_inverse FLOAT[],
     dimension INTEGER DEFAULT 100
@@ -371,7 +416,7 @@ CREATE OR REPLACE FUNCTION godel.compute_scalar_curvature(
     SELECT scalar_R FROM curvature_calc;
 $$;
 
--- Geodesic
+-- Geodesic integration
 
 -- Distance integration between manifold points
 CREATE OR REPLACE FUNCTION godel.integrate_geodesic_distance(
@@ -400,6 +445,10 @@ DECLARE
     christoffel_term FLOAT;
     gamma_idx INTEGER;
     ds FLOAT;
+    arr_pa FLOAT[];
+    arr_pb FLOAT[];
+    len_pa INTEGER;
+    len_pb INTEGER;
 BEGIN
     SELECT semantic_field, metric_tensor, christoffel_symbols
     INTO pa_coords, pa_metric, pa_christoffel
@@ -418,10 +467,17 @@ BEGIN
     current_pos := ARRAY(SELECT 0.0 FROM generate_series(1, dim));
     current_vel := ARRAY(SELECT 0.0 FROM generate_series(1, dim));
     acceleration := ARRAY(SELECT 0.0 FROM generate_series(1, dim));
+    next_pos := ARRAY(SELECT 0.0 FROM generate_series(1, dim));
+    next_vel := ARRAY(SELECT 0.0 FROM generate_series(1, dim));
+    
+    arr_pa := godel.vector_to_real_array(pa_coords);
+    arr_pb := godel.vector_to_real_array(pb_coords);
+    len_pa := GREATEST(COALESCE(array_length(arr_pa, 1), 0), 1);
+    len_pb := GREATEST(COALESCE(array_length(arr_pb, 1), 0), 1);
     
     FOR i IN 1..dim LOOP
-        current_pos[i] := pa_coords[i];
-        current_vel[i] := (pb_coords[i] - pa_coords[i]) / num_steps;
+        current_pos[i] := arr_pa[LEAST(i, len_pa)];
+        current_vel[i] := (arr_pb[LEAST(i, len_pb)] - arr_pa[LEAST(i, len_pa)]) / num_steps;
     END LOOP;
     
     step_size := 1.0 / num_steps;
@@ -481,8 +537,11 @@ $$;
 
 -- Coupling analysis
 
--- Recursive coupling tensor: R_ijk(p,q) 
 CREATE OR REPLACE FUNCTION godel.compute_recursive_coupling_tensor(
+-- Purpose: Heuristic mixed-partial coupling tensor over semantic/coherence fields.
+-- Math: R_ijk ≈ (p_i · q_j · c_k) / (1 + |p_i| + |q_j|) on active dimension slice.
+-- Assumptions: maps VECTOR(2000) to real[]; n=100; index guards for length.
+-- Returns: flattened 3-tensor (size n^3).
     point_p UUID,
     point_q UUID,
     h FLOAT DEFAULT 1e-6
@@ -514,18 +573,27 @@ BEGIN
     
     coupling_tensor := ARRAY(SELECT 0.0 FROM generate_series(1, dim*dim*dim));
     
-    FOR i IN 1..dim LOOP
-        FOR j IN 1..dim LOOP
-            FOR k IN 1..dim LOOP
-                mixed_partial := 
-                    (semantic_p[LEAST(i, 2000)] * semantic_q[LEAST(j, 2000)] * coherence_p[LEAST(k, 2000)]) /
-                    (1.0 + abs(semantic_p[LEAST(i, 2000)]) + abs(semantic_q[LEAST(j, 2000)]));
-                
-                idx := (i-1)*dim*dim + (j-1)*dim + k;
-                coupling_tensor[idx] := mixed_partial;
+    -- Convert vectors to arrays once for elementwise access
+    DECLARE
+        arr_p FLOAT[] := godel.vector_to_real_array(semantic_p);
+        arr_q FLOAT[] := godel.vector_to_real_array(semantic_q);
+        arr_c FLOAT[] := godel.vector_to_real_array(coherence_p);
+    BEGIN
+        FOR i IN 1..dim LOOP
+            FOR j IN 1..dim LOOP
+                FOR k IN 1..dim LOOP
+                    mixed_partial := 
+                        (arr_p[LEAST(i, array_length(arr_p,1))] * 
+                         arr_q[LEAST(j, array_length(arr_q,1))] * 
+                         arr_c[LEAST(k, array_length(arr_c,1))]) /
+                        (1.0 + abs(arr_p[LEAST(i, array_length(arr_p,1))]) + abs(arr_q[LEAST(j, array_length(arr_q,1))]));
+                    
+                    idx := (i-1)*dim*dim + (j-1)*dim + k;
+                    coupling_tensor[idx] := mixed_partial;
+                END LOOP;
             END LOOP;
         END LOOP;
-    END LOOP;
+    END;
     
     RETURN coupling_tensor;
 END;
