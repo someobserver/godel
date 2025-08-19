@@ -8,43 +8,61 @@
 -- 
 -- SPDX-License-Identifier: MIT
 
-\echo 'Loading GODEL...'
+\echo '============================================================'
+\echo '                          GODEL'
+\echo '    -- Geometric Ontology Detecting Emergent Logics --'
+\echo ''
+\echo '  a field analysis engine for semantic database structures'
+\echo '============================================================'
+\echo ''
+\echo ''
 
-\echo '1/7: Foundation...'
+SET client_min_messages TO warning;
+
+\echo 'Sequence: schema/00_foundation.sql'
+\echo '          schema/01_geometric_analysis.sql'
+\echo '          schema/02_rigidity_signatures.sql'
+\echo '          schema/03_fragmentation_signatures.sql'
+\echo '          schema/04_inflation_signatures.sql'
+\echo '          schema/05_observer_coupling_signatures.sql'
+\echo '          schema/06_operational_monitoring.sql'
+\echo ''
+\echo '====================  RFT Foundation  ======================'
+\echo ''
 \i schema/00_foundation.sql
+\echo ''
 
-\echo '2/7: Geometric Analysis...'
+\echo '==================  Geometric Analysis  ===================='
+\echo ''
 \i schema/01_geometric_analysis.sql
+\echo ''
 
-\echo '3/7: Rigidity Signatures...'
+\echo '==================  Rigidity Signatures  ==================='
+\echo ''
 \i schema/02_rigidity_signatures.sql
+\echo ''
 
-\echo '4/7: Fragmentation Signatures...'
+\echo '===============  Fragmentation Signatures  ================='
+\echo ''
 \i schema/03_fragmentation_signatures.sql
+\echo ''
 
-\echo '5/7: Inflation Signatures...'
+\echo '=================  Inflation Signatures  ==================='
+\echo ''
 \i schema/04_inflation_signatures.sql
+\echo ''
 
-\echo '6/7: Observer-Coupling Signatures...'
+\echo '==============  Observer-Coupling Signatures  =============='
+\echo ''
 \i schema/05_observer_coupling_signatures.sql
+\echo ''
 
-\echo '7/7: Operational Monitoring...'
+\echo '================  Operational Monitoring  =================='
+\echo ''
 \i schema/06_operational_monitoring.sql
+\echo ''
 
+SET client_min_messages TO notice;
+
+\echo 'GODEL engine loaded successfully.'
 \echo ''
-\echo 'GODEL Loaded Successfully'
-\echo ''
-\echo 'Components:'
-\echo '- 12 Geometric Detection Functions (4 categories x 3 signatures each)'
-\echo '- Geometric field analysis'
-\echo '- Coordination detection'
-\echo '- Escalation prediction'
-\echo '- Monitoring dashboards'
-\echo ''
-\echo 'Functions:'
-\echo '- detect_all_signatures(point_id)'
-\echo '- detect_coordination_via_coupling()'
-\echo '- detect_escalation_via_field_evolution(point_ids)'
-\echo ''
-\echo 'Views: coordination_alerts, geometric_alerts'
-\echo 'Ready.' 
